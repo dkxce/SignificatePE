@@ -40,7 +40,7 @@ namespace dkxce
             foreach (string file in files)
             {
                 string ext = Path.GetExtension(file).ToLower();
-                if (ext == ".pfx")
+                if (ext == ".pfx" || ext == ".p12")
                     certFile = file;
                 else if (ext == ".exe" || ext == ".dll" || ext == ".msi")
                     signFiles.Add(file);
@@ -194,7 +194,7 @@ namespace dkxce
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.Title = "Select Certificate from File";
             ofd.DefaultExt = ".pfx";
-            ofd.Filter = "PFX Files (*.pfx)|*.pfx|All Types (*.*)|*.*";
+            ofd.Filter = "PFX Files (*.pfx;*.p12)|*.pfx;*.p12|All Types (*.*)|*.*";
             try { ofd.FileName = pfxEdit.Text.Trim(); } catch { };
             if (ofd.ShowDialog() == DialogResult.OK) pfxEdit.Text = ofd.FileName;
             ofd.Dispose();
