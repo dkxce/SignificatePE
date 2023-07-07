@@ -1,6 +1,6 @@
-# SignificatePE
+# SignificatePE / Significator
 
-SignificatePE (Significator) Signature Tool for Exe, Dll, MSI (signtool analog)
+SignificatePE / Significator - Signature Tool for Exe, Dll, MSI (signtool analog)
 
 #### RU ####
 **SignificatePE** — это программа, которая подписывает файлы цифровой подписью, проверяет подписи в файлах и удаляет подписи из файлов.    
