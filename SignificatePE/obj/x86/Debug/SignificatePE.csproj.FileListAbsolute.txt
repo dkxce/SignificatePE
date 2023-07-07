@@ -1,0 +1,8 @@
+C:\Users\dkxce\source\repos\Significator\SignificatePE\bin\x86\Debug\SignificatePE.exe.config
+C:\Users\dkxce\source\repos\Significator\SignificatePE\bin\x86\Debug\SignificatePE.exe
+C:\Users\dkxce\source\repos\Significator\SignificatePE\bin\x86\Debug\SignificatePE.pdb
+C:\Users\dkxce\source\repos\Significator\SignificatePE\obj\x86\Debug\SignificatePE.csproj.AssemblyReference.cache
+C:\Users\dkxce\source\repos\Significator\SignificatePE\obj\x86\Debug\SignificatePE.csproj.SuggestedBindingRedirects.cache
+C:\Users\dkxce\source\repos\Significator\SignificatePE\obj\x86\Debug\SignificatePE.csproj.CoreCompileInputs.cache
+C:\Users\dkxce\source\repos\Significator\SignificatePE\obj\x86\Debug\SignificatePE.exe
+C:\Users\dkxce\source\repos\Significator\SignificatePE\obj\x86\Debug\SignificatePE.pdb
