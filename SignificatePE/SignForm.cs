@@ -159,6 +159,10 @@ namespace dkxce
             };
 
             if (!string.IsNullOrEmpty(tmpfn) && File.Exists(tmpfn)) File.Delete(tmpfn);
+
+            Application.DoEvents();
+            log.SelectionStart = log.TextLength;
+            log.ScrollToCaret();
         }
 
         public void AppendTextBox(string value)
@@ -167,8 +171,8 @@ namespace dkxce
             BeginInvoke(new ThreadStart(delegate {
                 try { 
                     log.Text += value;
-                    log.SelectionStart = log.TextLength;
-                    log.ScrollToCaret();
+                    //log.SelectionStart = log.TextLength;
+                    //log.ScrollToCaret();
                 } catch { }; }));
             Application.DoEvents();
         }
