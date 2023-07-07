@@ -12,6 +12,6 @@ SignificatePE / Significator - Signature Tool for Exe, Dll, MSI (signtool analog
 <img src="window.png"/>
 
 **Alternatives**:    
-- [MS signtool](https://learn.microsoft.com/ru-ru/windows/win32/seccrypto/signtool)     
-- [Mac signcode](https://github.com/kevinsawicki/signcode)
+- [MS signtool](https://learn.microsoft.com/ru-ru/windows/win32/seccrypto/signtool) or [info](https://signmycode.com/resources/signing-executable-files-using-microsoft-signtool)       
+- [Mac signcode](https://github.com/kevinsawicki/signcode) or [else](https://github.com/InVisionApp/signcode)      
 - [Windows ksign](https://www.ksoftware.net/code-signing-certificates/#ksign)
