@@ -74,7 +74,7 @@ namespace dkxce
                     if (arg.StartsWith("@") && arg.Length > 1)
                     {
                         string fn = arg.Substring(1);
-                        try { if (!File.Exists(fn)) continue; } catch { };
+                        try { if (!File.Exists(fn)) continue; } catch { continue; };
                         foreach(string f in File.ReadAllLines(fn))
                             try { if (File.Exists(f)) files.Add(f); } catch { };
                         continue;
