@@ -144,7 +144,7 @@ namespace dkxce
                 {
                     if (selHash.SelectedIndex > 0)
                     {
-                        string[] ha = new string[] { "sha", "sha", "s256", "s512" };
+                        string[] ha = new string[] { "s256", "sha", "s256", "s512" };
                         psi.Arguments += $" /a={ha[selHash.SelectedIndex]}";
                     };
                     string ts = selTimeServer.Text.Trim();
@@ -170,6 +170,16 @@ namespace dkxce
 
                 log.Clear();
                 log.Text = $"MODE: {selMode.Text}\r\n\r\n{Path.GetFileName(psi.FileName)} {psi.Arguments}\r\n\r\n";
+
+                if(selMode.SelectedIndex == 1 && fList.Items.Count == 1)
+                {
+                    string ts = selTimeServer.Text.Trim();
+                    if (string.IsNullOrEmpty(ts))
+                        ts += selTimeServer.Items[0];
+                    string[] ha = new string[] { "SHA256", "SHA1", "SHA256", "SHA512" };
+                    string al = ha[selHash.SelectedIndex];
+                    log.Text += $"signtool.exe sign /d %INFO_DESC% /du %INFO_HTTP% /f \"{pfxEdit.Text}\" /p \"{passEdit.Text}\" /tr {ts} /td {al} /fd {al} \"{(fList.Items[0] as FileItem).FileName}\"\r\n\r\n";
+                };
             }
             else
             {
