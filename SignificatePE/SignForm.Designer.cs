@@ -41,6 +41,16 @@
             this.bottomPanel = new System.Windows.Forms.Panel();
             this.cmdBtn = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
+            this.contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.newConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
+            this.configsItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
+            this.openWindowsCertMgrToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
+            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clsBtn = new System.Windows.Forms.Button();
             this.runBtn = new System.Windows.Forms.Button();
             this.topPanel = new System.Windows.Forms.Panel();
@@ -62,6 +72,7 @@
             this.gFiles.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
             this.bottomPanel.SuspendLayout();
+            this.contextMenuStrip2.SuspendLayout();
             this.topPanel.SuspendLayout();
             this.gTimeServer.SuspendLayout();
             this.gHash.SuspendLayout();
@@ -166,13 +177,86 @@
             // 
             // button1
             // 
+            this.button1.ContextMenuStrip = this.contextMenuStrip2;
             this.button1.Location = new System.Drawing.Point(3, 3);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 5;
-            this.button1.Text = "ABOUT";
+            this.button1.Text = "MENU";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // contextMenuStrip2
+            // 
+            this.contextMenuStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.newConfigurationToolStripMenuItem,
+            this.openConfigurationToolStripMenuItem,
+            this.saveConfigurationToolStripMenuItem,
+            this.toolStripMenuItem4,
+            this.configsItem,
+            this.toolStripMenuItem2,
+            this.openWindowsCertMgrToolStripMenuItem,
+            this.toolStripMenuItem3,
+            this.aboutToolStripMenuItem});
+            this.contextMenuStrip2.Name = "contextMenuStrip2";
+            this.contextMenuStrip2.Size = new System.Drawing.Size(215, 176);
+            this.contextMenuStrip2.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip2_Opening);
+            // 
+            // newConfigurationToolStripMenuItem
+            // 
+            this.newConfigurationToolStripMenuItem.Name = "newConfigurationToolStripMenuItem";
+            this.newConfigurationToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
+            this.newConfigurationToolStripMenuItem.Text = "New configuration";
+            this.newConfigurationToolStripMenuItem.Click += new System.EventHandler(this.newConfigurationToolStripMenuItem_Click);
+            // 
+            // openConfigurationToolStripMenuItem
+            // 
+            this.openConfigurationToolStripMenuItem.Name = "openConfigurationToolStripMenuItem";
+            this.openConfigurationToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
+            this.openConfigurationToolStripMenuItem.Text = "Open Configuration ...";
+            this.openConfigurationToolStripMenuItem.Click += new System.EventHandler(this.openConfigurationToolStripMenuItem_Click);
+            // 
+            // saveConfigurationToolStripMenuItem
+            // 
+            this.saveConfigurationToolStripMenuItem.Name = "saveConfigurationToolStripMenuItem";
+            this.saveConfigurationToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
+            this.saveConfigurationToolStripMenuItem.Text = "Save Configuration ...";
+            this.saveConfigurationToolStripMenuItem.Click += new System.EventHandler(this.saveConfigurationToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItem4
+            // 
+            this.toolStripMenuItem4.Name = "toolStripMenuItem4";
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(211, 6);
+            // 
+            // configsItem
+            // 
+            this.configsItem.Name = "configsItem";
+            this.configsItem.Size = new System.Drawing.Size(214, 22);
+            this.configsItem.Text = "Configs:";
+            // 
+            // toolStripMenuItem2
+            // 
+            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(211, 6);
+            // 
+            // openWindowsCertMgrToolStripMenuItem
+            // 
+            this.openWindowsCertMgrToolStripMenuItem.Name = "openWindowsCertMgrToolStripMenuItem";
+            this.openWindowsCertMgrToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
+            this.openWindowsCertMgrToolStripMenuItem.Text = "Open Windows CertMgr ...";
+            this.openWindowsCertMgrToolStripMenuItem.Click += new System.EventHandler(this.openWindowsCertMgrToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItem3
+            // 
+            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(211, 6);
+            // 
+            // aboutToolStripMenuItem
+            // 
+            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
+            this.aboutToolStripMenuItem.Text = "About ...";
+            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
             // clsBtn
             // 
@@ -376,6 +460,7 @@
             this.gFiles.ResumeLayout(false);
             this.contextMenuStrip1.ResumeLayout(false);
             this.bottomPanel.ResumeLayout(false);
+            this.contextMenuStrip2.ResumeLayout(false);
             this.topPanel.ResumeLayout(false);
             this.topPanel.PerformLayout();
             this.gTimeServer.ResumeLayout(false);
@@ -419,5 +504,15 @@
         private System.Windows.Forms.Button clsBtn;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button cmdBtn;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip2;
+        private System.Windows.Forms.ToolStripMenuItem newConfigurationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openConfigurationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveConfigurationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
+        private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openWindowsCertMgrToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
+        private System.Windows.Forms.ToolStripMenuItem configsItem;
     }
 }

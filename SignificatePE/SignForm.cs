@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
@@ -18,6 +20,19 @@ namespace dkxce
 {
     public partial class SignForm : Form
     {
+        #region DLLIMPORTs
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern bool AppendMenu(IntPtr hMenu, int uFlags, int uIDNewItem, string lpNewItem);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern bool InsertMenu(IntPtr hMenu, int uPosition, int uFlags, int uIDNewItem, string lpNewItem);
+
+        #endregion DLLIMPORTs
+
         public SignForm()
         {
             InitializeComponent();
@@ -25,6 +40,32 @@ namespace dkxce
             this.DragEnter += new DragEventHandler(Form_DragEnter);
             this.DragDrop += new DragEventHandler(Form_DragDrop);
             fList.DrawMode = DrawMode.OwnerDrawFixed;
+
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+            this.Text += $" v{fvi.FileVersion}";
+        }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            IntPtr hSysMenu = GetSystemMenu(this.Handle, false);
+            AppendMenu(hSysMenu, 0x800, 0x00, string.Empty);
+            AppendMenu(hSysMenu, 0x000, 0x01, "Author: dkxce");
+            AppendMenu(hSysMenu, 0x000, 0x02, "Open Windows CertMgr... ");
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            base.WndProc(ref m);
+            if ((m.Msg == 0x112) && ((int)m.WParam == 0x01)) // Author
+            {
+                OpenAbout();                
+            };            
+            if ((m.Msg == 0x112) && ((int)m.WParam == 0x02))
+            {
+                try { Process.Start("certmgr.msc"); } catch { };
+            };            
         }
 
         private void Form_DragEnter(object sender, DragEventArgs e)
@@ -62,7 +103,7 @@ namespace dkxce
         {
             selMode.SelectedIndex = 0;
             selHash.SelectedIndex = 0;
-            LoadCfg();
+            LoadCfg();            
             Run(true, "/s /w=0 /?");
         }
 
@@ -256,25 +297,26 @@ namespace dkxce
             log.Clear();
         }
 
-        private void LoadCfg()
+        private void LoadCfg(bool empty = false, string fileName = null)
         {
             try
             {
-                SignConfig cfg = SignConfig.Load("SignificatePE.ini");
+                SignConfig cfg = empty ? new SignConfig() : (string.IsNullOrEmpty(fileName) ? SignConfig.Load("SignificatePE.ini") : SignConfig.Load(fileName));
                 selMode.SelectedIndex = cfg.MODE;
                 pfxEdit.Text = cfg.CERTIFICATE;
-                try { passEdit.Text = PassCrypt.Decrypt(cfg.PASSWORD.Trim(), "SignificatePE::dkxce.SignForm"); } catch { };
+                try { passEdit.Text = PassCrypt.Decrypt(cfg.PASSWORD.Trim(), "SignificatePE::dkxce.SignForm"); } catch { passEdit.Text = ""; };
                 eThumb.Text = cfg.THUMBPRINT;
                 selHash.SelectedIndex = cfg.HASHALG;
+                fList.Items.Clear();
                 if (cfg.FILES != null && cfg.FILES.Count > 0)
                     DropFiles(cfg.FILES.ToArray());
             }
             catch { };
         }
 
-        private void SaveCfg()
+        private void SaveCfg(string fileName = null)
         {
-            if (selMode.SelectedIndex == 0) return;
+            if (selMode.SelectedIndex == 0 && string.IsNullOrEmpty(fileName)) return;
             SignConfig cfg = new SignConfig()
             {
                 MODE = (byte)selMode.SelectedIndex,
@@ -286,12 +328,12 @@ namespace dkxce
             };
             foreach (FileItem fi in fList.Items)
                 cfg.FILES.Add(fi.FileName);
-            try { SignConfig.SaveHere("SignificatePE.ini", cfg); } catch { };
+            try { if (string.IsNullOrEmpty(fileName)) SignConfig.SaveHere("SignificatePE.ini", cfg); else SignConfig.Save(fileName, cfg); } catch { };
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            try { System.Diagnostics.Process.Start("http://github.com/dkxce/SignificatePE"); } catch { };
+            contextMenuStrip2.Show((Control)sender, new Point(0, 0));
         }
 
         private void fList_DrawItem(object sender, DrawItemEventArgs e)
@@ -321,6 +363,71 @@ namespace dkxce
         {
             Run(false);
             SaveCfg();
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenAbout();
+        }
+
+        private void OpenAbout()
+        {
+            try { Process.Start("http://github.com/dkxce/SignificatePE"); } catch { };
+        }
+
+        private void newConfigurationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LoadCfg(true);
+        }
+
+        private void openWindowsCertMgrToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try { Process.Start("certmgr.msc"); } catch { };
+        }
+
+        private void openConfigurationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog fd = new OpenFileDialog();
+            fd.Filter = "Ini Files (*.ini)|*.ini";
+            fd.DefaultExt = ".ini";
+            fd.InitialDirectory = Path.GetDirectoryName(Environment.GetCommandLineArgs()[0]);
+            if (fd.ShowDialog() == DialogResult.OK)
+                LoadCfg(false, fd.FileName);
+            fd.Dispose();
+        }
+
+        private void saveConfigurationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string suffix = selMode.Text;
+            if(selMode.SelectedIndex == 1 && !string.IsNullOrEmpty(pfxEdit.Text.Trim()) && File.Exists(pfxEdit.Text))
+                suffix = Path.GetFileName(pfxEdit.Text);
+            if (selMode.SelectedIndex == 2 && !string.IsNullOrEmpty(eThumb.Text.Trim()))
+                suffix = eThumb.Text.Trim();
+
+            SaveFileDialog fd = new SaveFileDialog();
+            fd.FileName = $"Cfg [{suffix}].ini";
+            fd.Filter = "Ini Files (*.ini)|*.ini";
+            fd.DefaultExt = ".ini";
+            fd.InitialDirectory = Path.GetDirectoryName(Environment.GetCommandLineArgs()[0]);
+            if (fd.ShowDialog() == DialogResult.OK)
+                SaveCfg(fd.FileName);
+            fd.Dispose();
+        }
+
+        private void contextMenuStrip2_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            configsItem.DropDownItems.Clear();
+            string path = Path.GetDirectoryName(Environment.GetCommandLineArgs()[0]);
+            string[] files = Directory.GetFiles(path, "*.ini", SearchOption.AllDirectories);
+            configsItem.Enabled = files.Length > 0;
+            foreach (string f in files)
+            {
+                string nm = f.Substring(path.Length).Trim('\\');
+                if (nm == "SignificatePE.ini") nm += " (Last Launched)";
+                ToolStripMenuItem mi = new ToolStripMenuItem(nm,this.Icon.ToBitmap());
+                mi.Click += (object s, EventArgs a) => LoadCfg(false, f);
+                configsItem.DropDownItems.Add(mi);
+            };
         }
     }
 
