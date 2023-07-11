@@ -6,6 +6,7 @@
 //
 
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -14,6 +15,12 @@ namespace dkxce
 {
     public static class SignificatePE
     {
+        public enum SignificateMode
+        {
+            Overwrite = 0,
+            Append = 1
+        }
+
         #region TIME SERVERS
 
         private const string TIME_SERVER_A = "http://timestamp.digicert.com";
@@ -193,6 +200,23 @@ namespace dkxce
             );
 
         [DllImport("Mssign32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern int SignerSignEx2(
+            uint dwFlags,               // DWORD
+            IntPtr pSubjectInfo,        // SIGNER_SUBJECT_INFO
+            IntPtr pSignerCert,         // SIGNER_CERT
+            IntPtr pSignatureInfo,      // SIGNER_SIGNATURE_INFO
+            IntPtr pProviderInfo,       // SIGNER_PROVIDER_INFO
+            int dwTimestampFlags,       // DWORD                  
+            string pszTimestampAlgOid,  // PCSTR
+            string pwszHttpTimeStamp,   // LPCWSTR
+            IntPtr psRequest,           // PCRYPT_ATTRIBUTES
+            IntPtr pSipData,            // LPVOID 
+            out SIGNER_CONTEXT ppSignerContext,  // SIGNER_CONTEXT
+            IntPtr PCSTR,               // PCERT_STRONG_SIGN_PARA 
+            IntPtr pReserved            // PVOID                  
+            );
+
+        [DllImport("Mssign32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         private static extern int SignerTimeStamp(
             IntPtr pSubjectInfo,        // SIGNER_SUBJECT_INFO
             string pwszHttpTimeStamp,   // LPCWSTR
@@ -210,11 +234,49 @@ namespace dkxce
             out SIGNER_CONTEXT ppSignerContext  // SIGNER_CONTEXT
             );
 
+        [DllImport("Mssign32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern int SignerTimeStampEx2(
+           uint dwFlags,               // DWORD
+           IntPtr pSubjectInfo,        // SIGNER_SUBJECT_INFO
+           string pwszHttpTimeStamp,   // LPCWSTR
+           uint dwAlgId,               // ALG_ID
+           IntPtr psRequest,           // PCRYPT_ATTRIBUTES
+           IntPtr pSipData,            // LPVOID 
+           out IntPtr ppSignerContext  // SIGNER_CONTEXT
+           );
+
+        [DllImport("Mssign32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern int SignerTimeStampEx3(
+           uint dwFlags,               // DWORD
+           uint dwIndex,               // DWORD
+           IntPtr pSubjectInfo,        // SIGNER_SUBJECT_INFO
+           string pwszHttpTimeStamp,   // LPCWSTR
+           IntPtr dwAlgId,             // ALG_ID
+           IntPtr psRequest,           // PCRYPT_ATTRIBUTES
+           IntPtr pSipData,            // LPVOID 
+           out IntPtr ppSignerContext, // SIGNER_CONTEXT
+           IntPtr pCryptoPolicy,       // PCERT_STRONG_SIGN_PARA
+           IntPtr pReserved            // PVOID
+           );
+
         [DllImport("Crypt32.dll", EntryPoint = "CertCreateCertificateContext", SetLastError = true, CharSet = CharSet.Unicode, ExactSpelling = false, CallingConvention = CallingConvention.StdCall)]
         private static extern IntPtr CertCreateCertificateContext(
             int dwCertEncodingType,
             byte[] pbCertEncoded,
             int cbCertEncoded);
+
+        [DllImport("Crypt32.DLL", EntryPoint = "CertOpenStore", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr CertOpenStore(int storeProvider, int encodingType, IntPtr hcryptProv, int flags, String pvPara);
+
+        [DllImport("Crypt32.DLL", EntryPoint = "CertCloseStore", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern bool CertCloseStore(IntPtr store, int flags);
+
+        [DllImport("CRYPT32.DLL", EntryPoint = "CertAddEncodedCertificateToStore", CharSet = CharSet.Auto, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool CertAddEncodedCertificateToStore(IntPtr certStore, int certEncodingType, byte[] certEncoded, int certEncodedLength, int addDisposition, IntPtr certContext);
+
+        [DllImport("CRYPT32.DLL", EntryPoint = "CertEnumCertificatesInStore", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr CertEnumCertificatesInStore(IntPtr storeProvider, IntPtr prevCertContext);
 
         #endregion
 
@@ -235,7 +297,7 @@ namespace dkxce
         /// <param name="certPath"></param>
         /// <param name="certPassword"></param>
         /// <param name="timestampUrl"></param>
-        public static bool SignWithCert(string filePath, string certPath, string certPassword = null, string timestampUrl = TIME_SERVER_A, uint CALC_ALG = CALG_SHA_256)
+        public static bool SignWithCertFile(string filePath, string certPath, string certPassword = null, string timestampUrl = TIME_SERVER_A, uint CALC_ALG = CALG_SHA_256, bool append = false)
         {
             if (CALC_ALG == 0) CALC_ALG = CALG_SHA_256;
             if (string.IsNullOrEmpty(timestampUrl)) timestampUrl = TIME_SERVER_A;
@@ -248,19 +310,42 @@ namespace dkxce
             try
             {
                 X509Certificate2 cert = string.IsNullOrEmpty(certPassword) ? new X509Certificate2(certPath) : new X509Certificate2(certPath, certPassword);
-                // -2147024810 Incorrect Passw //
+                // -2147024810 Incorrect Passw //                
 
-                pSignerCert = CreateSignerCert(cert);
+                pSignerCert = CreateSignerCert(cert, ref append, GetFriendlyAlgoName(CALC_ALG), filePath);
                 pSubjectInfo = CreateSignerSubjectInfo(filePath);
                 pSignatureInfo = CreateSignerSignatureInfo(CALC_ALG);
                 pProviderInfo = GetProviderInfo(cert);
 
                 SIGNER_CONTEXT signerContext;
 
-                int signRes = _SignerSignEx(0x0, pSubjectInfo, pSignerCert, pSignatureInfo, pProviderInfo, out signerContext);
+                uint dwFlags = (uint)(append ? 0x1000 /* SIG_APPEND */ : 0x0);
+                int signRes = _SignerSignEx(dwFlags, pSubjectInfo, pSignerCert, pSignatureInfo, pProviderInfo, out signerContext, append);
 
                 if (signRes == 0 && !string.IsNullOrEmpty(timestampUrl))
-                    signRes = _SignerTimeStampEx(0x0, pSubjectInfo, timestampUrl, out signerContext);
+                {
+                    //signRes = _SignerTimeStamp(pSubjectInfo, timestampUrl);
+                    if (!append)
+                        signRes = _SignerTimeStampEx(0x00, pSubjectInfo, timestampUrl, out signerContext);
+                    else
+                    {
+                        VertificatePE.GetSignatureFileInfo(filePath, out VertificatePE.VERIFY_SIGNATURE[] sigs, out _);
+                        uint dwIndex = 0;
+                        try
+                        {
+                            DateTime dt = DateTime.MinValue;
+                            if (sigs != null && sigs.Length > 0)
+                                for (uint i = 0; i < sigs.Length; i++)
+                                {
+                                    if (sigs[i].Certificate == null) continue;
+                                    if (sigs[i].Certificate.Thumbprint.ToUpper() != cert.Thumbprint.ToUpper()) continue;
+                                    if (sigs[i].Signed > dt) { dt = sigs[i].Signed; dwIndex = i; };
+                                };
+                        }
+                        catch { };
+                        signRes = _SignerTimeStampEx3(0x02 /* SIGNER_TIMESTAMP_RFC3161 */, dwIndex, GetFriendlyAlgoID(CALC_ALG), pSubjectInfo, timestampUrl, out signerContext);
+                    }
+                };
 
                 if (signRes != 0) LastError = new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
                 return signRes == 0;
@@ -270,9 +355,6 @@ namespace dkxce
                 int ie = Marshal.GetHRForException(ce);
                 switch (ie)
                 {
-                    case -2146885623:
-                        LastError = new Exception(string.Format(@"An error occurred while attempting to load the signing certificate.  {1} ""{0}"" does not appear to contain a valid certificate.", certPath, ie));
-                        break;
                     case -2147024810:
                         LastError = new Exception(string.Format(@"An error occurred while attempting to load the signing certificate.  {0} The specified password was incorrect.", ie));
                         break;
@@ -302,7 +384,7 @@ namespace dkxce
         /// <param name="filePath"></param>
         /// <param name="thumbprint"></param>
         /// <param name="timestampUrl"></param>
-        public static bool SignWithThumbprint(string filePath, string thumbprint, string timestampUrl = TIME_SERVER_A, uint CALC_ALG = CALG_SHA_256)
+        public static bool SignWithThumbprint(string filePath, string thumbprint, string timestampUrl = TIME_SERVER_A, uint CALC_ALG = CALG_SHA_256, bool append = false)
         {
             if (CALC_ALG == 0) CALC_ALG = CALG_SHA_256;
             if (string.IsNullOrEmpty(timestampUrl)) timestampUrl = TIME_SERVER_A;
@@ -314,19 +396,59 @@ namespace dkxce
 
             try
             {
-                pSignerCert = CreateSignerCert(thumbprint);
+                X509Certificate2 cert = FindCertByThumbprint(thumbprint);
+
+                pSignerCert = CreateSignerCert(cert, ref append, GetFriendlyAlgoName(CALC_ALG), filePath);
                 pSubjectInfo = CreateSignerSubjectInfo(filePath);
                 pSignatureInfo = CreateSignerSignatureInfo(CALC_ALG);
+                pProviderInfo = GetProviderInfo(cert);
 
-                int signRes = _SignerSign(pSubjectInfo, pSignerCert, pSignatureInfo, pProviderInfo);
+                SIGNER_CONTEXT signerContext;
+
+                uint dwFlags = (uint)(append ? 0x1000 /* SIG_APPEND */ : 0x0);
+                int signRes = _SignerSignEx(dwFlags, pSubjectInfo, pSignerCert, pSignatureInfo, pProviderInfo, out signerContext, append);
 
                 if (signRes == 0 && !string.IsNullOrEmpty(timestampUrl))
-                    signRes = _SignerTimeStamp(pSubjectInfo, timestampUrl);
-                
-                if(signRes != 0) LastError = new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
+                {
+                    //signRes = _SignerTimeStamp(pSubjectInfo, timestampUrl);
+                    if (!append)
+                        signRes = _SignerTimeStampEx(0x00, pSubjectInfo, timestampUrl, out signerContext);
+                    else
+                    {
+                        VertificatePE.GetSignatureFileInfo(filePath, out VertificatePE.VERIFY_SIGNATURE[] sigs, out _);
+                        uint dwIndex = 0;
+                        try
+                        {
+                            DateTime dt = DateTime.MinValue;
+                            if (sigs != null && sigs.Length > 0)
+                                for (uint i = 0; i < sigs.Length; i++)
+                                {
+                                    if (sigs[i].Certificate == null) continue;
+                                    if (sigs[i].Certificate.Thumbprint.ToUpper() != cert.Thumbprint.ToUpper()) continue;
+                                    if (sigs[i].Signed > dt) { dt = sigs[i].Signed; dwIndex = i; };
+                                };
+                        }
+                        catch { };
+                        signRes = _SignerTimeStampEx3(0x02 /* SIGNER_TIMESTAMP_RFC3161 */, dwIndex, GetFriendlyAlgoID(CALC_ALG), pSubjectInfo, timestampUrl, out signerContext);
+                    }
+                };
+
+                if (signRes != 0) LastError = new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
                 return signRes == 0;
             }
-            catch (CryptographicException ce) { LastError = new Exception(string.Format(@"An error occurred while attempting to load the signing certificate.  {0}", ce.Message)); }
+            catch (CryptographicException ce)
+            {
+                int ie = Marshal.GetHRForException(ce);
+                switch (ie)
+                {
+                    case -2147024810:
+                        LastError = new Exception(string.Format(@"An error occurred while attempting to load the signing certificate.  {0} The specified password was incorrect.", ie));
+                        break;
+                    default:
+                        LastError = new Exception(string.Format(@"An error occurred while attempting to load the signing certificate.  {1} {0}", ce.Message, ie));
+                        break;
+                };
+            }
             catch (Exception e) { LastError = e; }
             finally
             {
@@ -336,6 +458,8 @@ namespace dkxce
                     Marshal.DestroyStructure(pSubjectInfo, typeof(SIGNER_SUBJECT_INFO));
                 if (pSignatureInfo != IntPtr.Zero)
                     Marshal.DestroyStructure(pSignatureInfo, typeof(SIGNER_SIGNATURE_INFO));
+                if (pProviderInfo != IntPtr.Zero)
+                    Marshal.DestroyStructure(pSignatureInfo, typeof(SIGNER_PROVIDER_INFO));
             };
             return false;
         }
@@ -347,14 +471,10 @@ namespace dkxce
             const string ECC = "1.2.840.10045.2.1";
             switch (cert.PublicKey.Oid.Value)
             {
-                case RSA:
-                    return (RSA)cert.GetRSAPublicKey();
-                case DSA:
-                    return (DSA)cert.GetDSAPublicKey();
-                case ECC:
-                    return (ECDsa)cert.GetECDsaPublicKey();
-                default:
-                    break;
+                case RSA: return (RSA)cert.GetRSAPublicKey();
+                case DSA: return (DSA)cert.GetDSAPublicKey();
+                case ECC: return (ECDsa)cert.GetECDsaPublicKey();
+                default: break;
             };
             return cert.PublicKey;
         }
@@ -366,14 +486,10 @@ namespace dkxce
             const string ECC = "1.2.840.10045.2.1";
             switch (cert.PublicKey.Oid.Value)
             {
-                case RSA:
-                    return (RSA)cert.GetRSAPrivateKey();
-                case DSA:
-                    return (DSA)cert.GetDSAPrivateKey();
-                case ECC:
-                    return (ECDsa)cert.GetECDsaPrivateKey();
-                default:
-                    break;
+                case RSA: return (RSA)cert.GetRSAPrivateKey();
+                case DSA: return (DSA)cert.GetDSAPrivateKey();
+                case ECC: return (ECDsa)cert.GetECDsaPrivateKey();
+                default: break;
             };
             return cert.PrivateKey;
         }
@@ -383,10 +499,8 @@ namespace dkxce
             const string RSA = "1.2.840.113549.1.1.1";
             switch (cert.PublicKey.Oid.Value)
             {
-                case RSA:
-                    return (RSACryptoServiceProvider)cert.GetRSAPrivateKey();
-                default:
-                    break;
+                case RSA: return (RSACryptoServiceProvider)cert.GetRSAPrivateKey();
+                default: break;
             };
             return cert.PrivateKey as RSACryptoServiceProvider;
         }
@@ -394,6 +508,24 @@ namespace dkxce
         #endregion public methods
 
         #region private methods
+
+        private static string GetFriendlyAlgoName(uint CAL_ALG)
+        {
+            if (CAL_ALG == 0x00008003) return "md5";
+            if (CAL_ALG == 0x00008004) return "sha1";
+            if (CAL_ALG == 0x0000800c) return "sha256";
+            if (CAL_ALG == 0x0000800e) return "sha512";
+            return "unknown";
+        }
+
+        private static string GetFriendlyAlgoID(uint CAL_ALG)
+        {
+            if (CAL_ALG == 0x00008003) return "1.2.840.113549.2.5"; // md5
+            if (CAL_ALG == 0x00008004) return "1.3.14.3.2.26"; // sha1
+            if (CAL_ALG == 0x0000800c) return "2.16.840.1.101.3.4.2.1"; // sha256
+            if (CAL_ALG == 0x0000800e) return "2.16.840.1.101.3.4.2.3"; // sha512
+            return "unknown";
+        }
 
         private static IntPtr CreateSignerSubjectInfo(string pathToAssembly)
         {
@@ -453,7 +585,7 @@ namespace dkxce
             catch (Exception e) { throw e; };
         }
 
-        private static IntPtr CreateSignerCert(X509Certificate2 cert)
+        private static IntPtr CreateSignerCert(X509Certificate2 cert, ref bool append, string algo = "sha256", string sourceFile = null)
         {
             SIGNER_CERT signerCert = new SIGNER_CERT
             {
@@ -464,55 +596,54 @@ namespace dkxce
                     pCertStoreInfo = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(SIGNER_CERT_STORE_INFO)))
                 },
                 hwnd = IntPtr.Zero
-            };            
-
-            IntPtr pCertContext = CertCreateCertificateContext(
-                X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
-                cert.GetRawCertData(),
-                cert.GetRawCertData().Length);
-
-            SIGNER_CERT_STORE_INFO certStoreInfo = new SIGNER_CERT_STORE_INFO
-            {
-                cbSize = (uint)Marshal.SizeOf(typeof(SIGNER_CERT_STORE_INFO)),
-                pSigningCert = pCertContext,
-                dwCertPolicy = SIGNER_CERT_POLICY_CHAIN,
-                hCertStore = IntPtr.Zero
             };
 
-            Marshal.StructureToPtr(certStoreInfo, signerCert.Union1.pCertStoreInfo, false);
-
-            IntPtr pSignerCert = Marshal.AllocHGlobal(Marshal.SizeOf(signerCert));
-            Marshal.StructureToPtr(signerCert, pSignerCert, false);
-
-            return pSignerCert;
-        }
-
-        private static IntPtr CreateSignerCert(string thumbprint)
-        {
-            SIGNER_CERT signerCert = new SIGNER_CERT
-            {
-                cbSize = (uint)Marshal.SizeOf(typeof(SIGNER_CERT)),
-                dwCertChoice = SIGNER_CERT_STORE,
-                Union1 = new SIGNER_CERT.SignerCertUnion
-                {
-                    pCertStoreInfo = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(SIGNER_CERT_STORE_INFO)))
-                },
-                hwnd = IntPtr.Zero
-            };            
-
-            X509Certificate2 cert = FindCertByThumbprint(thumbprint);
-
             IntPtr pCertContext = CertCreateCertificateContext(
                 X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
                 cert.GetRawCertData(),
                 cert.GetRawCertData().Length);
+
+            IntPtr pCertStore = IntPtr.Zero;
+            if (append)
+            {
+                append = false;
+                if (!string.IsNullOrEmpty(sourceFile) && File.Exists(sourceFile))
+                {
+                    VertificatePE.GetSignatureFileInfo(sourceFile, out VertificatePE.VERIFY_SIGNATURE[] sigs, out _);
+                    if (sigs != null && sigs.Length > 0)
+                    {
+                        pCertStore = CertOpenStore(2 /* CERT_STORE_PROV_MEMORY */, 0, IntPtr.Zero, 0x00002000 /* CERT_STORE_CREATE_NEW_FLAG */, null);
+                        if (pCertStore != IntPtr.Zero)
+                        {
+                            foreach (VertificatePE.VERIFY_SIGNATURE sig in sigs)
+                            {
+                                if (sig.Certificate == null) continue;
+                                string hashAlg = sig.HashAlgorithm.FriendlyName.ToUpper();
+                                byte[] cData = sig.Certificate.GetRawCertData();
+                                if (CertAddEncodedCertificateToStore(pCertStore, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, cData, cData.Length, 5 /* CERT_STORE_ADD_REPLACE_EXISTING_INHERIT_PROPERTIES */, IntPtr.Zero))
+                                    append = true;
+                            };
+                            if (append)
+                            {
+                                byte[] cData = cert.GetRawCertData();
+                                CertAddEncodedCertificateToStore(pCertStore, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, cData, cData.Length, 5 /* CERT_STORE_ADD_REPLACE_EXISTING_INHERIT_PROPERTIES */, IntPtr.Zero);
+                            }
+                            else
+                            {
+                                if (pCertStore != IntPtr.Zero) CertCloseStore(pCertStore, 0);
+                                pCertStore = IntPtr.Zero;
+                            };
+                        };
+                    };                                   
+                };
+            };
 
             SIGNER_CERT_STORE_INFO certStoreInfo = new SIGNER_CERT_STORE_INFO
             {
                 cbSize = (uint)Marshal.SizeOf(typeof(SIGNER_CERT_STORE_INFO)),
                 pSigningCert = pCertContext,
                 dwCertPolicy = SIGNER_CERT_POLICY_CHAIN,
-                hCertStore = IntPtr.Zero
+                hCertStore = pCertStore
             };
 
             Marshal.StructureToPtr(certStoreInfo, signerCert.Union1.pCertStoreInfo, false);
@@ -539,12 +670,12 @@ namespace dkxce
             Marshal.StructureToPtr(signatureInfo, pSignatureInfo, false);
 
             return pSignatureInfo;
-        }        
+        }
 
         private static IntPtr GetProviderInfo(X509Certificate2 cert)
         {
             if (cert == null || !cert.HasPrivateKey) return IntPtr.Zero;
-            
+
             ICspAsymmetricAlgorithm key = (ICspAsymmetricAlgorithm)cert.PrivateKey;
             const int PVK_TYPE_KEYCONTAINER = 2;
 
@@ -568,27 +699,52 @@ namespace dkxce
             return pProviderInfo;
         }
 
-        private static int _SignerSign(IntPtr pSubjectInfo, IntPtr pSignerCert, IntPtr pSignatureInfo, IntPtr pProviderInfo)
+        private static int _SignerSign(uint dwFlags, IntPtr pSubjectInfo, IntPtr pSignerCert, IntPtr pSignatureInfo, IntPtr pProviderInfo, bool multisign_ex2 = false)
         {
-            int hResult = SignerSign(
-                pSubjectInfo,
-                pSignerCert,
-                pSignatureInfo,
-                pProviderInfo,
-                null,
-                IntPtr.Zero,
-                IntPtr.Zero
-                );
+            int hResult = 0;
+            if (!multisign_ex2)
+            {
+                hResult = SignerSign(
+                    pSubjectInfo,
+                    pSignerCert,
+                    pSignatureInfo,
+                    pProviderInfo,
+                    null,
+                    IntPtr.Zero,
+                    IntPtr.Zero
+                    );
+            }
+            else
+            {
+                hResult = SignerSignEx2(
+                    dwFlags,
+                    pSubjectInfo,
+                    pSignerCert,
+                    pSignatureInfo,
+                    pProviderInfo,
+                    2 /* SIGNER_TIMESTAMP_RFC3161 */,
+                    null,
+                    null,
+                    IntPtr.Zero,
+                    IntPtr.Zero,
+                    out SIGNER_CONTEXT signerContext,
+                    IntPtr.Zero,
+                    IntPtr.Zero
+                    );
+            };
 
             if (hResult != 0)
                 Marshal.ThrowExceptionForHR(Marshal.GetHRForLastWin32Error());
             return hResult;
         }
 
-        private static int _SignerSignEx(uint dwFlags, IntPtr pSubjectInfo, IntPtr pSignerCert, IntPtr pSignatureInfo, IntPtr pProviderInfo, out SIGNER_CONTEXT signerContext)
+        private static int _SignerSignEx(uint dwFlags, IntPtr pSubjectInfo, IntPtr pSignerCert, IntPtr pSignatureInfo, IntPtr pProviderInfo, out SIGNER_CONTEXT signerContext, bool multisign_ex2 = false)
         {
+            int hResult = 0;
+            if (!multisign_ex2)
+            {
 
-            int hResult = SignerSignEx(
+                hResult = SignerSignEx(
                 dwFlags,
                 pSubjectInfo,
                 pSignerCert,
@@ -599,6 +755,25 @@ namespace dkxce
                 IntPtr.Zero,
                 out signerContext
                 );
+            }
+            else
+            {
+                hResult = SignerSignEx2(
+                    dwFlags,
+                    pSubjectInfo,
+                    pSignerCert,
+                    pSignatureInfo,
+                    pProviderInfo,
+                    2 /* SIGNER_TIMESTAMP_RFC3161 */,
+                    null,
+                    null,
+                    IntPtr.Zero,
+                    IntPtr.Zero,
+                    out signerContext,
+                    IntPtr.Zero,
+                    IntPtr.Zero
+                    );
+            };
 
             if (hResult != 0)
                 Marshal.ThrowExceptionForHR(Marshal.GetHRForLastWin32Error());
@@ -618,6 +793,10 @@ namespace dkxce
 
         private static int _SignerTimeStampEx(uint dwFlags, IntPtr pSubjectInfo, string timestampUrl, out SIGNER_CONTEXT signerContext)
         {
+            //signerContext = new SIGNER_CONTEXT();
+            //int rr = SignerTimeStampEx2(dwFlags, pSubjectInfo, timestampUrl, 0x0000800c, IntPtr.Zero, IntPtr.Zero, out IntPtr sc);
+            //return rr;
+
             int hResult = SignerTimeStampEx(dwFlags, pSubjectInfo, timestampUrl, IntPtr.Zero, IntPtr.Zero, out signerContext);
             if (hResult != 0)
             {
@@ -627,6 +806,23 @@ namespace dkxce
             return hResult;
         }
 
+        private static int _SignerTimeStampEx3(uint dwFlags, uint dwIndex, string algo, IntPtr pSubjectInfo, string timestampUrl, out SIGNER_CONTEXT signerContext)
+        {
+            //signerContext = new SIGNER_CONTEXT();
+            //int rr = SignerTimeStampEx2(dwFlags, pSubjectInfo, timestampUrl, 0x0000800c, IntPtr.Zero, IntPtr.Zero, out IntPtr sc);
+            //return rr;
+
+            signerContext = new SIGNER_CONTEXT();
+            int hResult = SignerTimeStampEx3(dwFlags, dwIndex, pSubjectInfo, timestampUrl, Marshal.StringToHGlobalAnsi(algo), IntPtr.Zero, IntPtr.Zero, out IntPtr sc, IntPtr.Zero, IntPtr.Zero);
+            if (hResult != 0)
+            {
+                //Marshal.ThrowExceptionForHR(Marshal.GetHRForLastWin32Error());
+                throw new Exception(string.Format(@"""{0}"" could not be used at this time.  If necessary, check the timestampUrl, internet connection, and try again.", timestampUrl));
+            };
+            return hResult;
+        }
+
         #endregion private methods
+
     }
 }

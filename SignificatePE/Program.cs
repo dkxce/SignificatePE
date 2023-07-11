@@ -5,11 +5,14 @@
 // en,ru,1251,utf-8
 //
 
+// https://www.pkisolutions.com/accessing-and-using-certificate-private-keys-in-net-framework-net-core/
+
 using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
+using static dkxce.SignificatePE;
 
 namespace dkxce
 {
@@ -42,6 +45,7 @@ namespace dkxce
             bool verify = false;
             bool remove = false;
             bool silent = false;
+            SignificateMode ovw_mode = SignificateMode.Overwrite;
             List<string> files = new List<string>();
 
             if (args != null && args.Length > 0)
@@ -70,6 +74,8 @@ namespace dkxce
                         remove = true;
                     if (arg.StartsWith("/s") || arg.StartsWith("-s"))
                         silent = true;
+                    if (arg.StartsWith("/n") || arg.StartsWith("-n"))
+                        ovw_mode = SignificateMode.Append;
                     if (arg.StartsWith("/") || arg.StartsWith("-")) continue;
                     if (arg.StartsWith("@") && arg.Length > 1)
                     {
@@ -104,6 +110,7 @@ namespace dkxce
             Console.WriteLine("******      /a=<alg>    - Set Hash Alg (sha, s256, s512) ******");            
             Console.WriteLine("******      /w=<sec>    - Wait Timeout In ms             ******");            
             Console.WriteLine("******      /r or /d    - Remove Signatures (DeSign)     ******");
+            Console.WriteLine("******      /n          - Append New Mode (multisign)    ******");
             Console.WriteLine("******      /v          - Verify Only (No Sign)          ******");
             Console.WriteLine("******      /s          - Silent Mode (No Questions)     ******");
             Console.WriteLine("******                                                   ******");
@@ -186,7 +193,7 @@ namespace dkxce
                                 Console.WriteLine($" {{ ");
                                 Console.WriteLine($"   Name: {fi.Name}");
                                 Console.WriteLine($"   Path: {fi.FullName}");
-                                bool res = string.IsNullOrEmpty(thmb) ? SignificatePE.SignWithCert(fi.FullName, cert, pass, hurl, algo) : SignificatePE.SignWithThumbprint(fi.FullName, thmb, hurl, algo);
+                                bool res = string.IsNullOrEmpty(thmb) ? SignificatePE.SignWithCertFile(fi.FullName, cert, pass, hurl, algo, ovw_mode == SignificateMode.Append) : SignificatePE.SignWithThumbprint(fi.FullName, thmb, hurl, algo, ovw_mode == SignificateMode.Append);
                                 Console.WriteLine($"   Status: {res}");
                                 Exception ex = SignificatePE.GetLastError();
                                 if (ex == null) ex = new System.ComponentModel.Win32Exception(0);
@@ -217,7 +224,7 @@ namespace dkxce
                             Console.WriteLine($" {{ ");
                             Console.WriteLine($"   Name: {fi.Name}");
                             Console.WriteLine($"   Path: {fi.FullName}");
-                            bool res = SignificatePE.SignWithThumbprint(fi.FullName, thmb, hurl, algo);
+                            bool res = SignificatePE.SignWithThumbprint(fi.FullName, thmb, hurl, algo, ovw_mode == SignificateMode.Append);
                             Console.WriteLine($"   Status: {res}");
                             Exception ex = SignificatePE.GetLastError();
                             if (ex == null) ex = new System.ComponentModel.Win32Exception(0);

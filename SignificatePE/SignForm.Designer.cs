@@ -54,6 +54,8 @@
             this.clsBtn = new System.Windows.Forms.Button();
             this.runBtn = new System.Windows.Forms.Button();
             this.topPanel = new System.Windows.Forms.Panel();
+            this.label3 = new System.Windows.Forms.Label();
+            this.ovMode = new System.Windows.Forms.ComboBox();
             this.gTimeServer = new System.Windows.Forms.GroupBox();
             this.selTimeServer = new System.Windows.Forms.ComboBox();
             this.gHash = new System.Windows.Forms.GroupBox();
@@ -88,16 +90,16 @@
             this.lPanel.Dock = System.Windows.Forms.DockStyle.Left;
             this.lPanel.Location = new System.Drawing.Point(0, 0);
             this.lPanel.Name = "lPanel";
-            this.lPanel.Size = new System.Drawing.Size(320, 436);
+            this.lPanel.Size = new System.Drawing.Size(320, 465);
             this.lPanel.TabIndex = 0;
             // 
             // gFiles
             // 
             this.gFiles.Controls.Add(this.fList);
             this.gFiles.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gFiles.Location = new System.Drawing.Point(0, 284);
+            this.gFiles.Location = new System.Drawing.Point(0, 298);
             this.gFiles.Name = "gFiles";
-            this.gFiles.Size = new System.Drawing.Size(320, 123);
+            this.gFiles.Size = new System.Drawing.Size(320, 138);
             this.gFiles.TabIndex = 9;
             this.gFiles.TabStop = false;
             this.gFiles.Text = "Files";
@@ -110,7 +112,7 @@
             this.fList.Location = new System.Drawing.Point(3, 16);
             this.fList.Name = "fList";
             this.fList.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.fList.Size = new System.Drawing.Size(314, 104);
+            this.fList.Size = new System.Drawing.Size(314, 119);
             this.fList.TabIndex = 3;
             this.fList.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.fList_DrawItem);
             // 
@@ -160,7 +162,7 @@
             this.bottomPanel.Controls.Add(this.clsBtn);
             this.bottomPanel.Controls.Add(this.runBtn);
             this.bottomPanel.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.bottomPanel.Location = new System.Drawing.Point(0, 407);
+            this.bottomPanel.Location = new System.Drawing.Point(0, 436);
             this.bottomPanel.Name = "bottomPanel";
             this.bottomPanel.Size = new System.Drawing.Size(320, 29);
             this.bottomPanel.TabIndex = 8;
@@ -199,7 +201,7 @@
             this.toolStripMenuItem3,
             this.aboutToolStripMenuItem});
             this.contextMenuStrip2.Name = "contextMenuStrip2";
-            this.contextMenuStrip2.Size = new System.Drawing.Size(215, 176);
+            this.contextMenuStrip2.Size = new System.Drawing.Size(215, 154);
             this.contextMenuStrip2.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip2_Opening);
             // 
             // newConfigurationToolStripMenuItem
@@ -280,6 +282,8 @@
             // 
             // topPanel
             // 
+            this.topPanel.Controls.Add(this.label3);
+            this.topPanel.Controls.Add(this.ovMode);
             this.topPanel.Controls.Add(this.gTimeServer);
             this.topPanel.Controls.Add(this.gHash);
             this.topPanel.Controls.Add(this.gbThumb);
@@ -289,14 +293,35 @@
             this.topPanel.Dock = System.Windows.Forms.DockStyle.Top;
             this.topPanel.Location = new System.Drawing.Point(0, 0);
             this.topPanel.Name = "topPanel";
-            this.topPanel.Size = new System.Drawing.Size(320, 284);
+            this.topPanel.Size = new System.Drawing.Size(320, 298);
             this.topPanel.TabIndex = 7;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(13, 43);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(47, 13);
+            this.label3.TabIndex = 14;
+            this.label3.Text = "Append:";
+            // 
+            // ovMode
+            // 
+            this.ovMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ovMode.FormattingEnabled = true;
+            this.ovMode.Items.AddRange(new object[] {
+            "OVERWRITE (1 signature in file)",
+            "APPEND (multiple signatures in file)"});
+            this.ovMode.Location = new System.Drawing.Point(65, 40);
+            this.ovMode.Name = "ovMode";
+            this.ovMode.Size = new System.Drawing.Size(238, 21);
+            this.ovMode.TabIndex = 13;
             // 
             // gTimeServer
             // 
             this.gTimeServer.Controls.Add(this.selTimeServer);
             this.gTimeServer.Enabled = false;
-            this.gTimeServer.Location = new System.Drawing.Point(12, 224);
+            this.gTimeServer.Location = new System.Drawing.Point(12, 245);
             this.gTimeServer.Name = "gTimeServer";
             this.gTimeServer.Size = new System.Drawing.Size(291, 50);
             this.gTimeServer.TabIndex = 12;
@@ -308,7 +333,8 @@
             this.selTimeServer.FormattingEnabled = true;
             this.selTimeServer.Items.AddRange(new object[] {
             "http://timestamp.digicert.com",
-            "http://timestamp.comodoca.com"});
+            "http://timestamp.comodoca.com",
+            "http://tsa.starfieldtech.com"});
             this.selTimeServer.Location = new System.Drawing.Point(6, 19);
             this.selTimeServer.Name = "selTimeServer";
             this.selTimeServer.Size = new System.Drawing.Size(279, 21);
@@ -318,7 +344,7 @@
             // 
             this.gHash.Controls.Add(this.selHash);
             this.gHash.Enabled = false;
-            this.gHash.Location = new System.Drawing.Point(12, 172);
+            this.gHash.Location = new System.Drawing.Point(12, 193);
             this.gHash.Name = "gHash";
             this.gHash.Size = new System.Drawing.Size(291, 50);
             this.gHash.TabIndex = 11;
@@ -343,7 +369,7 @@
             // 
             this.gbThumb.Controls.Add(this.eThumb);
             this.gbThumb.Enabled = false;
-            this.gbThumb.Location = new System.Drawing.Point(12, 120);
+            this.gbThumb.Location = new System.Drawing.Point(12, 141);
             this.gbThumb.Name = "gbThumb";
             this.gbThumb.Size = new System.Drawing.Size(291, 50);
             this.gbThumb.TabIndex = 10;
@@ -365,7 +391,7 @@
             this.gbPfx.Controls.Add(this.pfxBtn);
             this.gbPfx.Controls.Add(this.pfxEdit);
             this.gbPfx.Enabled = false;
-            this.gbPfx.Location = new System.Drawing.Point(12, 46);
+            this.gbPfx.Location = new System.Drawing.Point(12, 67);
             this.gbPfx.Name = "gbPfx";
             this.gbPfx.Size = new System.Drawing.Size(291, 72);
             this.gbPfx.TabIndex = 9;
@@ -416,9 +442,9 @@
             "SIGN FILE(S) BY THUMBPRINT",
             "VERIFY FILE(S) SIGNATURE",
             "DESIGN FILE(S) (REMOVE SIGNATURE)"});
-            this.selMode.Location = new System.Drawing.Point(55, 17);
+            this.selMode.Location = new System.Drawing.Point(65, 17);
             this.selMode.Name = "selMode";
-            this.selMode.Size = new System.Drawing.Size(248, 21);
+            this.selMode.Size = new System.Drawing.Size(238, 21);
             this.selMode.TabIndex = 8;
             this.selMode.SelectedIndexChanged += new System.EventHandler(this.selMode_SelectedIndexChanged);
             // 
@@ -442,14 +468,14 @@
             this.log.Name = "log";
             this.log.ReadOnly = true;
             this.log.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.log.Size = new System.Drawing.Size(542, 436);
+            this.log.Size = new System.Drawing.Size(542, 465);
             this.log.TabIndex = 1;
             // 
             // SignForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(862, 436);
+            this.ClientSize = new System.Drawing.Size(862, 465);
             this.Controls.Add(this.log);
             this.Controls.Add(this.lPanel);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -514,5 +540,7 @@
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
         private System.Windows.Forms.ToolStripMenuItem configsItem;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.ComboBox ovMode;
     }
 }

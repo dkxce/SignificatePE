@@ -130,11 +130,15 @@ namespace dkxce
                 {
                     try { if (!File.Exists(pfxEdit.Text.Trim())) return; } catch { return; };
                     psi.Arguments = $"/s /w=0 \"/c={pfxEdit.Text}\" /p={passEdit.Text}";
+                    if (ovMode.SelectedIndex == 1) psi.Arguments += " /n";
+                    if (ovMode.SelectedIndex == 2) psi.Arguments += " /m";
                 };
                 if (selMode.SelectedIndex == 2 /* SIGN BY THUMB */)
                 {
                     if (string.IsNullOrEmpty(eThumb.Text.Trim())) return;
                     psi.Arguments = $"/s /w=0 \"/t={eThumb.Text.Trim()}\"";
+                    if (ovMode.SelectedIndex == 1) psi.Arguments += " /n";
+                    if (ovMode.SelectedIndex == 2) psi.Arguments += " /m";
                 };
                 if (selMode.SelectedIndex == 3 /* VERIFY */)
                     psi.Arguments = "/s /w=0 /v";
@@ -179,6 +183,16 @@ namespace dkxce
                     string[] ha = new string[] { "SHA256", "SHA1", "SHA256", "SHA512" };
                     string al = ha[selHash.SelectedIndex];
                     log.Text += $"signtool.exe sign /d %INFO_DESC% /du %INFO_HTTP% /f \"{pfxEdit.Text}\" /p \"{passEdit.Text}\" /tr {ts} /td {al} /fd {al} \"{(fList.Items[0] as FileItem).FileName}\"\r\n\r\n";
+                };
+
+                if (selMode.SelectedIndex == 3 && fList.Items.Count == 1)
+                {
+                    string ts = selTimeServer.Text.Trim();
+                    if (string.IsNullOrEmpty(ts))
+                        ts += selTimeServer.Items[0];
+                    string[] ha = new string[] { "SHA256", "SHA1", "SHA256", "SHA512" };
+                    string al = ha[selHash.SelectedIndex];
+                    log.Text += $"signtool.exe verify /v /pa \"{(fList.Items[0] as FileItem).FileName}\"\r\n\r\n";
                 };
             }
             else
@@ -242,6 +256,7 @@ namespace dkxce
             gFiles.Enabled = selMode.SelectedIndex != 0;
             gHash.Enabled = selMode.SelectedIndex == 1 || selMode.SelectedIndex == 2;
             gTimeServer.Enabled = selMode.SelectedIndex == 1 || selMode.SelectedIndex == 2;
+            ovMode.Enabled = selMode.SelectedIndex == 1 || selMode.SelectedIndex == 2;
         }
 
         private void pfxBtn_Click(object sender, EventArgs e)
@@ -318,6 +333,7 @@ namespace dkxce
                 eThumb.Text = cfg.THUMBPRINT;
                 selHash.SelectedIndex = cfg.HASHALG;
                 fList.Items.Clear();
+                ovMode.SelectedIndex = cfg.APPEND;
                 if (cfg.FILES != null && cfg.FILES.Count > 0)
                     DropFiles(cfg.FILES.ToArray());
             }
@@ -334,7 +350,8 @@ namespace dkxce
                 PASSWORD = PassCrypt.Encrypt(passEdit.Text.Trim(), "SignificatePE::dkxce.SignForm"),
                 THUMBPRINT = eThumb.Text.Trim(),
                 HASHALG = (byte)selHash.SelectedIndex,
-                TIMESERVER = selTimeServer.Text.Trim()
+                TIMESERVER = selTimeServer.Text.Trim(),
+                APPEND = (byte)ovMode.SelectedIndex
             };
             foreach (FileItem fi in fList.Items)
                 cfg.FILES.Add(fi.FileName);
@@ -467,6 +484,7 @@ namespace dkxce
         public string THUMBPRINT;
         public byte HASHALG;
         public string TIMESERVER;
+        public byte APPEND;
         public List<string> FILES = new List<string>();
     }
 }
