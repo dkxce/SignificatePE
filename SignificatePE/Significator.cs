@@ -340,6 +340,57 @@ namespace dkxce
             return false;
         }
 
+        public static object ExtractPublicKey(X509Certificate2 cert)
+        {
+            const string RSA = "1.2.840.113549.1.1.1";
+            const string DSA = "1.2.840.10040.4.1";
+            const string ECC = "1.2.840.10045.2.1";
+            switch (cert.PublicKey.Oid.Value)
+            {
+                case RSA:
+                    return (RSA)cert.GetRSAPublicKey();
+                case DSA:
+                    return (DSA)cert.GetDSAPublicKey();
+                case ECC:
+                    return (ECDsa)cert.GetECDsaPublicKey();
+                default:
+                    break;
+            };
+            return cert.PublicKey;
+        }
+
+        public static AsymmetricAlgorithm ExtractPrivateKey(X509Certificate2 cert)
+        {
+            const string RSA = "1.2.840.113549.1.1.1";
+            const string DSA = "1.2.840.10040.4.1";
+            const string ECC = "1.2.840.10045.2.1";
+            switch (cert.PublicKey.Oid.Value)
+            {
+                case RSA:
+                    return (RSA)cert.GetRSAPrivateKey();
+                case DSA:
+                    return (DSA)cert.GetDSAPrivateKey();
+                case ECC:
+                    return (ECDsa)cert.GetECDsaPrivateKey();
+                default:
+                    break;
+            };
+            return cert.PrivateKey;
+        }
+
+        public static RSACryptoServiceProvider ExtractRsaPrivateKey(X509Certificate2 cert)
+        {
+            const string RSA = "1.2.840.113549.1.1.1";
+            switch (cert.PublicKey.Oid.Value)
+            {
+                case RSA:
+                    return (RSACryptoServiceProvider)cert.GetRSAPrivateKey();
+                default:
+                    break;
+            };
+            return cert.PrivateKey as RSACryptoServiceProvider;
+        }
+
         #endregion public methods
 
         #region private methods
@@ -488,7 +539,7 @@ namespace dkxce
             Marshal.StructureToPtr(signatureInfo, pSignatureInfo, false);
 
             return pSignatureInfo;
-        }
+        }        
 
         private static IntPtr GetProviderInfo(X509Certificate2 cert)
         {
