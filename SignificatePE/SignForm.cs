@@ -192,7 +192,7 @@ namespace dkxce
                         ts += selTimeServer.Items[0];
                     string[] ha = new string[] { "SHA256", "SHA1", "SHA256", "SHA512" };
                     string al = ha[selHash.SelectedIndex];
-                    log.Text += $"signtool.exe verify /v /pa \"{(fList.Items[0] as FileItem).FileName}\"\r\n\r\n";
+                    log.Text += $"signtool.exe verify /all /v /pa \"{(fList.Items[0] as FileItem).FileName}\"\r\n\r\n";
                 };
             }
             else
