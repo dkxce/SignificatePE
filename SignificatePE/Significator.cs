@@ -18,7 +18,8 @@ namespace dkxce
         public enum SignificateMode
         {
             Overwrite = 0,
-            Append = 1
+            Append = 1,
+            SeveralNew = 2
         }
 
         #region TIME SERVERS

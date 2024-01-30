@@ -311,11 +311,13 @@
             this.ovMode.FormattingEnabled = true;
             this.ovMode.Items.AddRange(new object[] {
             "OVERWRITE (1 signature in file)",
-            "APPEND (multiple signatures in file)"});
+            "APPEND (multiple signatures in file)",
+            "SEVERAL NEW (several signatures in file)"});
             this.ovMode.Location = new System.Drawing.Point(65, 40);
             this.ovMode.Name = "ovMode";
             this.ovMode.Size = new System.Drawing.Size(238, 21);
             this.ovMode.TabIndex = 13;
+            this.ovMode.SelectedIndexChanged += new System.EventHandler(this.ovMode_SelectedIndexChanged);
             // 
             // gTimeServer
             // 
@@ -354,6 +356,7 @@
             // 
             // selHash
             // 
+            this.selHash.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.selHash.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.selHash.FormattingEnabled = true;
             this.selHash.Items.AddRange(new object[] {
@@ -369,6 +372,7 @@
             this.selHash.Name = "selHash";
             this.selHash.Size = new System.Drawing.Size(279, 21);
             this.selHash.TabIndex = 9;
+            this.selHash.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.selHash_DrawItem);
             // 
             // gbThumb
             // 

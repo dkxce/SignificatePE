@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("dkxce")]
 [assembly: AssemblyProduct("SignificatePE")]
-[assembly: AssemblyCopyright("Copyright © dkxce 2023")]
+[assembly: AssemblyCopyright("Copyright © dkxce 2024")]
 [assembly: AssemblyTrademark("https://github.com/dkxce")]
 [assembly: AssemblyCulture("")]
 
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.23.7.11")]
-[assembly: AssemblyFileVersion("1.23.7.11")]
+[assembly: AssemblyVersion("1.24.1.30")]
+[assembly: AssemblyFileVersion("1.24.1.30")]

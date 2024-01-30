@@ -25,6 +25,7 @@ namespace dkxce
      * 0x04000 - Remove Mode
      * 0x05000 - Overwrite Mode
      * 0x06000 - Append Mode
+     * 0x07000 - Append Several Mode
      * 0x10000 - ERROR
      */
     internal class Program
@@ -89,6 +90,8 @@ namespace dkxce
                         silent = true;
                     if (arg.StartsWith("/n") || arg.StartsWith("-n"))
                     { ovw_mode = SignificateMode.Append; result = 0x06000; };
+                    if (arg.StartsWith("/m") || arg.StartsWith("-m"))
+                    { ovw_mode = SignificateMode.SeveralNew; result = 0x07000; };
                     if (arg.StartsWith("/") || arg.StartsWith("-")) continue;
                     if (arg.StartsWith("@") && arg.Length > 1)
                     {
@@ -125,6 +128,7 @@ namespace dkxce
             Console.WriteLine("*****       /w=<sec>    - Wait Timeout In ms              *****");            
             Console.WriteLine("*****       /r or /d    - Remove Signatures (DeSign)      *****");
             Console.WriteLine("*****       /n          - Append New Mode (multisign)     *****");
+            Console.WriteLine("*****       /m          - Append Several New (batch)      *****");
             Console.WriteLine("*****       /v          - Verify Only (No Sign)           *****");
             Console.WriteLine("*****       /s          - Silent Mode (No Questions)      *****");
             Console.WriteLine("*****                                                     *****");
@@ -197,7 +201,7 @@ namespace dkxce
                         Console.WriteLine($"   Name: {ci.Name}");
                         Console.WriteLine($"   Path: {ci.FullName}");
                         Console.WriteLine($"   Pass: {pass}");
-                        Console.WriteLine($" }} ");
+                        Console.WriteLine($" }} ");                        
 
                         if (Algos.Count == 0) Algos.Add(0x0000800c);
                         foreach (string f in files)
@@ -208,12 +212,16 @@ namespace dkxce
                             Console.WriteLine($" {{ ");
                             Console.WriteLine($"   Name: {fi.Name}");
                             Console.WriteLine($"   Path: {fi.FullName}");
+
+                            if (ovw_mode == SignificateMode.SeveralNew)
+                                VertificatePE.RemoveCertificateFileInfo(fi.FullName, out Exception ex);
+
                             foreach (uint algo in Algos)
                             {
                                 while (true)
                                 {
                                     Console.WriteLine($"   Algo: {GetFriendlyAlgoName(algo)} ({GetFriendlyAlgoID(algo)})");
-                                    bool res = string.IsNullOrEmpty(thmb) ? SignificatePE.SignWithCertFile(fi.FullName, cert, pass, hurl, algo, ovw_mode == SignificateMode.Append) : SignificatePE.SignWithThumbprint(fi.FullName, thmb, hurl, algo, ovw_mode == SignificateMode.Append);
+                                    bool res = string.IsNullOrEmpty(thmb) ? SignificatePE.SignWithCertFile(fi.FullName, cert, pass, hurl, algo, ovw_mode == SignificateMode.Append || ovw_mode == SignificateMode.SeveralNew) : SignificatePE.SignWithThumbprint(fi.FullName, thmb, hurl, algo, ovw_mode == SignificateMode.Append || ovw_mode == SignificateMode.SeveralNew);
                                     Console.WriteLine($"     Status: {res}");
                                     Exception ex = SignificatePE.GetLastError();
                                     if (ex == null) ex = new System.ComponentModel.Win32Exception(0);
@@ -247,10 +255,14 @@ namespace dkxce
                             Console.WriteLine($" {{ ");
                             Console.WriteLine($"   Name: {fi.Name}");
                             Console.WriteLine($"   Path: {fi.FullName}");
+
+                            if (ovw_mode == SignificateMode.SeveralNew)
+                                VertificatePE.RemoveCertificateFileInfo(fi.FullName, out Exception ex);
+
                             foreach (uint algo in Algos)
                             {
                                 Console.WriteLine($"   Algo: {GetFriendlyAlgoName(algo)} ({GetFriendlyAlgoID(algo)})");
-                                bool res = SignificatePE.SignWithThumbprint(fi.FullName, thmb, hurl, algo, ovw_mode == SignificateMode.Append);
+                                bool res = SignificatePE.SignWithThumbprint(fi.FullName, thmb, hurl, algo, ovw_mode == SignificateMode.Append || ovw_mode == SignificateMode.SeveralNew);
                                 Console.WriteLine($"     Status: {res}");
                                 Exception ex = SignificatePE.GetLastError();
                                 if (ex == null) ex = new System.ComponentModel.Win32Exception(0);

@@ -12,7 +12,6 @@ using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
@@ -33,6 +32,9 @@ namespace dkxce
         private static extern bool InsertMenu(IntPtr hMenu, int uPosition, int uFlags, int uIDNewItem, string lpNewItem);
 
         #endregion DLLIMPORTs
+
+        AutoCompleteStringCollection eThumbCache = new AutoCompleteStringCollection();
+        AutoCompleteStringCollection pfxCache = new AutoCompleteStringCollection();
 
         public SignForm()
         {
@@ -99,9 +101,17 @@ namespace dkxce
                 DropFiles(signFiles.ToArray());
             };
         }
-
+        
         private void CmdLnArFrm_Load(object sender, EventArgs e)
         {
+            eThumb.AutoCompleteSource = AutoCompleteSource.CustomSource;
+            eThumb.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            eThumb.AutoCompleteCustomSource = eThumbCache;
+
+            pfxEdit.AutoCompleteSource = AutoCompleteSource.CustomSource;
+            pfxEdit.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            pfxEdit.AutoCompleteCustomSource = pfxCache;
+
             selMode.SelectedIndex = 0;
             selHash.SelectedIndex = 0;
             LoadCfg();            
@@ -334,14 +344,38 @@ namespace dkxce
                 fList.Items.Clear();
                 ovMode.SelectedIndex = cfg.APPEND;
                 if (cfg.FILES != null && cfg.FILES.Count > 0)
+                {
                     DropFiles(cfg.FILES.ToArray());
+                };
+                if(string.IsNullOrEmpty(fileName) && cfg.ThumbList != null && cfg.ThumbList.Count > 0)
+                {
+                    eThumbCache.Clear();
+                    eThumbCache.AddRange(cfg.ThumbList.ToArray());
+                };
+                if (string.IsNullOrEmpty(fileName) && cfg.PfxList != null && cfg.PfxList.Count > 0)
+                {
+                    pfxCache.Clear();
+                    foreach (string f in cfg.PfxList)
+                        if (File.Exists(f))
+                            pfxCache.Add(f);
+                };
             }
             catch { };
         }
 
         private void SaveCfg(string fileName = null)
-        {
+        {            
             if (selMode.SelectedIndex == 0 && string.IsNullOrEmpty(fileName)) return;
+            if (selMode.SelectedIndex == 1 && !string.IsNullOrEmpty(pfxEdit.Text.Trim()))
+            {
+                string filePfx = pfxEdit.Text.Trim();
+                if (File.Exists(filePfx) && !pfxCache.Contains(filePfx)) pfxCache.Add(filePfx);
+            };
+            if (selMode.SelectedIndex == 2 && !string.IsNullOrEmpty(eThumb.Text.Trim()))
+            {
+                string thmprnt = eThumb.Text.Trim();
+                if(!eThumbCache.Contains(thmprnt)) eThumbCache.Add(thmprnt);
+            };
             SignConfig cfg = new SignConfig()
             {
                 MODE = (byte)selMode.SelectedIndex,
@@ -351,6 +385,13 @@ namespace dkxce
                 HASHALG = (byte)selHash.SelectedIndex,
                 TIMESERVER = selTimeServer.Text.Trim(),
                 APPEND = (byte)ovMode.SelectedIndex
+            };
+            if (string.IsNullOrEmpty(fileName))
+            {
+                foreach (string s in eThumbCache)
+                    cfg.ThumbList.Add(s);
+                foreach (string s in pfxCache)
+                    cfg.PfxList.Add(s);
             };
             foreach (FileItem fi in fList.Items)
                 cfg.FILES.Add(fi.FileName);
@@ -455,6 +496,29 @@ namespace dkxce
                 configsItem.DropDownItems.Add(mi);
             };
         }
+
+        private void ovMode_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            selHash.Refresh();
+        }
+
+        private void selHash_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            e.DrawBackground();
+            if (!selHash.Enabled)
+            {
+                e.Graphics.DrawString(selHash.Items[e.Index].ToString(), selHash.Font, Brushes.White, e.Bounds);
+            }
+            else if ((ovMode.SelectedIndex == 0 && e.Index > 3) || (ovMode.SelectedIndex == 2 && e.Index <= 3))
+            {
+                e.Graphics.DrawString(selHash.Items[e.Index].ToString(), selHash.Font, Brushes.LightGray, e.Bounds);
+            }
+            else
+            {                
+                e.Graphics.DrawString(selHash.Items[e.Index].ToString(), selHash.Font, Brushes.Black, e.Bounds);
+                e.DrawFocusRectangle();
+            };
+        }
     }
 
     public class FileItem
@@ -485,5 +549,7 @@ namespace dkxce
         public string TIMESERVER;
         public byte APPEND;
         public List<string> FILES = new List<string>();
+        public List<string> PfxList = new List<string>();
+        public List<string> ThumbList = new List<string>();
     }
 }
