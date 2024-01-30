@@ -334,6 +334,7 @@
             this.selTimeServer.Items.AddRange(new object[] {
             "http://timestamp.digicert.com",
             "http://timestamp.comodoca.com",
+            "http://timestamp.sectigo.com",
             "http://tsa.starfieldtech.com"});
             this.selTimeServer.Location = new System.Drawing.Point(6, 19);
             this.selTimeServer.Name = "selTimeServer";
@@ -359,7 +360,11 @@
             "[DEFAULT]",
             "SHA",
             "SHA256",
-            "SHA512"});
+            "SHA512",
+            "SHA,SHA256",
+            "SHA,SHA512",
+            "SHA256,SHA512",
+            "SHA,SHA256,SHA512"});
             this.selHash.Location = new System.Drawing.Point(6, 19);
             this.selHash.Name = "selHash";
             this.selHash.Size = new System.Drawing.Size(279, 21);

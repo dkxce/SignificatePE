@@ -39,7 +39,6 @@ namespace dkxce
             string pass = null;
             string thmb = null;
             string hurl = null;
-            uint   algo = 0x0000800c;
             int    wait = 250;
             bool help   = false;
             bool verify = false;
@@ -47,6 +46,7 @@ namespace dkxce
             bool silent = false;
             SignificateMode ovw_mode = SignificateMode.Overwrite;
             List<string> files = new List<string>();
+            List<uint> Algos = new List<uint>();
 
             if (args != null && args.Length > 0)
                 foreach (string arg in args)
@@ -60,12 +60,13 @@ namespace dkxce
                         thmb = arg.Substring(3);
                     if ((arg.StartsWith("/h=") || arg.StartsWith("-h=")) && arg.Length > 3)
                         hurl = arg.Substring(3);
-                    if ((arg.StartsWith("/a=") || arg.StartsWith("-a=")) && arg.Length > 3 && arg.Substring(3).ToLower() == "sha")
-                        algo = 0x00008004;
-                    if ((arg.StartsWith("/a=") || arg.StartsWith("-a=")) && arg.Length > 3 && arg.Substring(3).ToLower() == "s256")
-                        algo = 0x0000800c;
-                    if ((arg.StartsWith("/a=") || arg.StartsWith("-a=")) && arg.Length > 3 && arg.Substring(3).ToLower() == "s512")
-                        algo = 0x0000800e;
+                    if ((arg.StartsWith("/a=") || arg.StartsWith("-a=")) || (arg.StartsWith("/A=") || arg.StartsWith("-A=")) && arg.Length > 3)
+                    {
+                        string algs = arg.Substring(3).ToLower();
+                        if(algs.Contains("sha") && !Algos.Contains(SignificatePE.CALG_SHA)) Algos.Add(SignificatePE.CALG_SHA);
+                        if(algs.Contains("s256") && !Algos.Contains(SignificatePE.CALG_SHA_256)) Algos.Add(SignificatePE.CALG_SHA_256);
+                        if(algs.Contains("s512") && !Algos.Contains(SignificatePE.CALG_SHA_512)) Algos.Add(SignificatePE.CALG_SHA_512);
+                    };                        
                     if ((arg.StartsWith("/w=") || arg.StartsWith("-w=")) && arg.Length > 3 && ushort.TryParse(arg.Substring(3), out ushort to))
                         wait = to;
                     if (arg.StartsWith("/v") || arg.StartsWith("-v"))
@@ -183,39 +184,45 @@ namespace dkxce
                         Console.WriteLine($"   Pass: {pass}");
                         Console.WriteLine($" }} ");
 
+                        if (Algos.Count == 0) Algos.Add(0x0000800c);
                         foreach (string f in files)
                         {
-                            while (true)
+                            FileInfo fi = new FileInfo(f);
+                            if (fi.Name == "SignificatePE.exe") break;
+                            Console.WriteLine($" PROCESS FILE: ");
+                            Console.WriteLine($" {{ ");
+                            Console.WriteLine($"   Name: {fi.Name}");
+                            Console.WriteLine($"   Path: {fi.FullName}");
+                            foreach (uint algo in Algos)
                             {
-                                FileInfo fi = new FileInfo(f);
-                                if (fi.Name == "SignificatePE.exe") break;
-                                Console.WriteLine($" PROCESS FILE: ");
-                                Console.WriteLine($" {{ ");
-                                Console.WriteLine($"   Name: {fi.Name}");
-                                Console.WriteLine($"   Path: {fi.FullName}");
-                                bool res = string.IsNullOrEmpty(thmb) ? SignificatePE.SignWithCertFile(fi.FullName, cert, pass, hurl, algo, ovw_mode == SignificateMode.Append) : SignificatePE.SignWithThumbprint(fi.FullName, thmb, hurl, algo, ovw_mode == SignificateMode.Append);
-                                Console.WriteLine($"   Status: {res}");
-                                Exception ex = SignificatePE.GetLastError();
-                                if (ex == null) ex = new System.ComponentModel.Win32Exception(0);
-                                Console.WriteLine($"   Info: {ex.Message}");
-                                Verify(fi.FullName);
-                                Console.WriteLine($" }} ");
-                                if (!passwAsked && !silent && ex.Message.Contains("-2147024810"))
+                                while (true)
                                 {
-                                    Console.Write("  Enter valid password: ");
-                                    string passwl = Console.ReadLine().Trim();
-                                    pass = passwl;
-                                    passwAsked = true;
-                                    continue;
+                                    Console.WriteLine($"   Algo: {GetFriendlyAlgoName(algo)} ({GetFriendlyAlgoID(algo)})");
+                                    bool res = string.IsNullOrEmpty(thmb) ? SignificatePE.SignWithCertFile(fi.FullName, cert, pass, hurl, algo, ovw_mode == SignificateMode.Append) : SignificatePE.SignWithThumbprint(fi.FullName, thmb, hurl, algo, ovw_mode == SignificateMode.Append);
+                                    Console.WriteLine($"     Status: {res}");
+                                    Exception ex = SignificatePE.GetLastError();
+                                    if (ex == null) ex = new System.ComponentModel.Win32Exception(0);
+                                    Console.WriteLine($"     Info: {ex.Message}");                                    
+                                    if (!passwAsked && !silent && ex.Message.Contains("-2147024810"))
+                                    {
+                                        Console.Write("  Enter valid password: ");
+                                        string passwl = Console.ReadLine().Trim();
+                                        pass = passwl;
+                                        passwAsked = true;
+                                        continue;
+                                    };
+                                    break;
                                 };
-                                break;
                             };
+                            Verify(fi.FullName);
+                            Console.WriteLine($" }} ");
                         };
                     };
 
                     if (!string.IsNullOrEmpty(thmb))
                     {
                         Console.WriteLine($" THUMBPRINT: {thmb}");
+                        if (Algos.Count == 0) Algos.Add(0x0000800c);
                         foreach (string f in files)
                         {
                             FileInfo fi = new FileInfo(f);
@@ -224,11 +231,15 @@ namespace dkxce
                             Console.WriteLine($" {{ ");
                             Console.WriteLine($"   Name: {fi.Name}");
                             Console.WriteLine($"   Path: {fi.FullName}");
-                            bool res = SignificatePE.SignWithThumbprint(fi.FullName, thmb, hurl, algo, ovw_mode == SignificateMode.Append);
-                            Console.WriteLine($"   Status: {res}");
-                            Exception ex = SignificatePE.GetLastError();
-                            if (ex == null) ex = new System.ComponentModel.Win32Exception(0);
-                            Console.WriteLine($"   Info: {ex.Message}");
+                            foreach (uint algo in Algos)
+                            {
+                                Console.WriteLine($"   Algo: {GetFriendlyAlgoName(algo)} ({GetFriendlyAlgoID(algo)})");
+                                bool res = SignificatePE.SignWithThumbprint(fi.FullName, thmb, hurl, algo, ovw_mode == SignificateMode.Append);
+                                Console.WriteLine($"     Status: {res}");
+                                Exception ex = SignificatePE.GetLastError();
+                                if (ex == null) ex = new System.ComponentModel.Win32Exception(0);
+                                Console.WriteLine($"     Info: {ex.Message}");                                
+                            };
                             Verify(fi.FullName);
                             Console.WriteLine($" }} ");
                         };

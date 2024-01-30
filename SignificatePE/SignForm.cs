@@ -12,6 +12,7 @@ using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
@@ -119,6 +120,7 @@ namespace dkxce
             ProcessStartInfo psi = new ProcessStartInfo(fileName);            
             psi.UseShellExecute = false;
             psi.RedirectStandardOutput = true;
+            string[] ha = new string[] { "s256", "sha", "s256", "s512", "sha,s256", "sha,s512", "s256,s512", "sha,s256,s512" };
 
             string tmpfn = null;
 
@@ -147,9 +149,8 @@ namespace dkxce
                 if (selMode.SelectedIndex == 1 || selMode.SelectedIndex == 2 /* SIGN */)
                 {
                     if (selHash.SelectedIndex > 0)
-                    {
-                        string[] ha = new string[] { "s256", "sha", "s256", "s512" };
-                        psi.Arguments += $" /a={ha[selHash.SelectedIndex]}";
+                    {                        
+                        psi.Arguments += $" /A={ha[selHash.SelectedIndex]}";
                     };
                     string ts = selTimeServer.Text.Trim();
                     if (!string.IsNullOrEmpty(ts))
@@ -180,7 +181,6 @@ namespace dkxce
                     string ts = selTimeServer.Text.Trim();
                     if (string.IsNullOrEmpty(ts))
                         ts += selTimeServer.Items[0];
-                    string[] ha = new string[] { "SHA256", "SHA1", "SHA256", "SHA512" };
                     string al = ha[selHash.SelectedIndex];
                     log.Text += $"signtool.exe sign /d %INFO_DESC% /du %INFO_HTTP% /f \"{pfxEdit.Text}\" /p \"{passEdit.Text}\" /tr {ts} /td {al} /fd {al} \"{(fList.Items[0] as FileItem).FileName}\"\r\n\r\n";
                 };
@@ -190,7 +190,6 @@ namespace dkxce
                     string ts = selTimeServer.Text.Trim();
                     if (string.IsNullOrEmpty(ts))
                         ts += selTimeServer.Items[0];
-                    string[] ha = new string[] { "SHA256", "SHA1", "SHA256", "SHA512" };
                     string al = ha[selHash.SelectedIndex];
                     log.Text += $"signtool.exe verify /all /v /pa \"{(fList.Items[0] as FileItem).FileName}\"\r\n\r\n";
                 };

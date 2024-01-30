@@ -1,5 +1,4 @@
 C:\Users\dkxce\source\repos\Significator\SignificatePE\obj\Debug\SignificatePE.csproj.AssemblyReference.cache
-C:\Users\dkxce\source\repos\Significator\SignificatePE\obj\Debug\SignificatePE.csproj.SuggestedBindingRedirects.cache
 C:\Users\dkxce\source\repos\Significator\SignificatePE\obj\Debug\SignificatePE.csproj.CoreCompileInputs.cache
 C:\Users\dkxce\source\repos\Significator\SignificatePE\obj\Debug\SignificatePE.exe
 C:\Users\dkxce\source\repos\Significator\SignificatePE\obj\Debug\SignificatePE.pdb

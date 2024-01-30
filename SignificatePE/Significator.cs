@@ -35,15 +35,15 @@ namespace dkxce
 
         private const int OK_RESULT = 0;
 
-        private const uint CALG_NO_SIGN = 0x00002000;
-        private const uint CALG_MD5 = 0x00008003; // hash
-        private const uint CALG_SHA = 0x00008004; // sign
-        private const uint CALG_SHA1 = 0x00008004; // sign
-        private const uint CALG_SHA_256 = 0x0000800c; // sign
-        private const uint CALG_SHA_512 = 0x0000800e; // sign
-        private const uint CALG_RSA = 0x00002400; // keysign
-        private const uint CALG_DSA = 0x00002200; // keysign
-        private const uint CALG_ECC = 0x00002203; // keysign
+        public const uint CALG_NO_SIGN = 0x00002000;
+        public const uint CALG_MD5 = 0x00008003; // hash
+        public const uint CALG_SHA = 0x00008004; // sign
+        public const uint CALG_SHA1 = 0x00008004; // sign
+        public const uint CALG_SHA_256 = 0x0000800c; // sign
+        public const uint CALG_SHA_512 = 0x0000800e; // sign
+        public const uint CALG_RSA = 0x00002400; // keysign
+        public const uint CALG_DSA = 0x00002200; // keysign
+        public const uint CALG_ECC = 0x00002203; // keysign
 
         private const string CALN_NO_SIGN = "nosign";
         private const string CALN_MD5 = "md5"; // hash
@@ -536,11 +536,7 @@ namespace dkxce
             return cert.PrivateKey as RSACryptoServiceProvider;
         }
 
-        #endregion public methods
-
-        #region private methods
-
-        private static string GetFriendlyAlgoName(uint CAL_ALG)
+        public static string GetFriendlyAlgoName(uint CAL_ALG)
         {
             if (CAL_ALG == CALG_MD5) return CALN_MD5;
             if (CAL_ALG == CALG_SHA1) return CALN_SHA1;
@@ -549,7 +545,7 @@ namespace dkxce
             return "unknown";
         }
 
-        private static string GetFriendlyAlgoID(uint CAL_ALG)
+        public static string GetFriendlyAlgoID(uint CAL_ALG)
         {
             if (CAL_ALG == CALG_MD5) return CALO_MD5;
             if (CAL_ALG == CALG_SHA1) return CALO_SHA1;
