@@ -45,6 +45,8 @@
             this.newConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
+            this.mSISetingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
             this.configsItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
@@ -70,6 +72,13 @@
             this.selMode = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.log = new System.Windows.Forms.TextBox();
+            this.msiPanel = new System.Windows.Forms.Panel();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.msiMode = new System.Windows.Forms.ComboBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.msiHttp = new System.Windows.Forms.TextBox();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.msiDesc = new System.Windows.Forms.TextBox();
             this.lPanel.SuspendLayout();
             this.gFiles.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
@@ -80,6 +89,10 @@
             this.gHash.SuspendLayout();
             this.gbThumb.SuspendLayout();
             this.gbPfx.SuspendLayout();
+            this.msiPanel.SuspendLayout();
+            this.groupBox3.SuspendLayout();
+            this.groupBox2.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // lPanel
@@ -194,6 +207,8 @@
             this.newConfigurationToolStripMenuItem,
             this.openConfigurationToolStripMenuItem,
             this.saveConfigurationToolStripMenuItem,
+            this.toolStripMenuItem5,
+            this.mSISetingsToolStripMenuItem,
             this.toolStripMenuItem4,
             this.configsItem,
             this.toolStripMenuItem2,
@@ -201,7 +216,7 @@
             this.toolStripMenuItem3,
             this.aboutToolStripMenuItem});
             this.contextMenuStrip2.Name = "contextMenuStrip2";
-            this.contextMenuStrip2.Size = new System.Drawing.Size(215, 154);
+            this.contextMenuStrip2.Size = new System.Drawing.Size(215, 182);
             this.contextMenuStrip2.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip2_Opening);
             // 
             // newConfigurationToolStripMenuItem
@@ -224,6 +239,18 @@
             this.saveConfigurationToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
             this.saveConfigurationToolStripMenuItem.Text = "Save Configuration ...";
             this.saveConfigurationToolStripMenuItem.Click += new System.EventHandler(this.saveConfigurationToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItem5
+            // 
+            this.toolStripMenuItem5.Name = "toolStripMenuItem5";
+            this.toolStripMenuItem5.Size = new System.Drawing.Size(211, 6);
+            // 
+            // mSISetingsToolStripMenuItem
+            // 
+            this.mSISetingsToolStripMenuItem.Name = "mSISetingsToolStripMenuItem";
+            this.mSISetingsToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
+            this.mSISetingsToolStripMenuItem.Text = "MSI Settings ...";
+            this.mSISetingsToolStripMenuItem.Click += new System.EventHandler(this.mSISetingsToolStripMenuItem_Click);
             // 
             // toolStripMenuItem4
             // 
@@ -477,8 +504,77 @@
             this.log.Name = "log";
             this.log.ReadOnly = true;
             this.log.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.log.Size = new System.Drawing.Size(542, 465);
+            this.log.Size = new System.Drawing.Size(238, 465);
             this.log.TabIndex = 1;
+            // 
+            // msiPanel
+            // 
+            this.msiPanel.Controls.Add(this.groupBox3);
+            this.msiPanel.Controls.Add(this.groupBox2);
+            this.msiPanel.Controls.Add(this.groupBox1);
+            this.msiPanel.Dock = System.Windows.Forms.DockStyle.Right;
+            this.msiPanel.Location = new System.Drawing.Point(558, 0);
+            this.msiPanel.Name = "msiPanel";
+            this.msiPanel.Size = new System.Drawing.Size(304, 465);
+            this.msiPanel.TabIndex = 9;
+            this.msiPanel.Visible = false;
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.msiMode);
+            this.groupBox3.Location = new System.Drawing.Point(6, 112);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(291, 50);
+            this.groupBox3.TabIndex = 13;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "MSI Mode";
+            // 
+            // msiMode
+            // 
+            this.msiMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.msiMode.FormattingEnabled = true;
+            this.msiMode.Items.AddRange(new object[] {
+            "INTERNAL (use SignificatePE)",
+            "SIGNTOOL (use SignTool)"});
+            this.msiMode.Location = new System.Drawing.Point(6, 19);
+            this.msiMode.Name = "msiMode";
+            this.msiMode.Size = new System.Drawing.Size(279, 21);
+            this.msiMode.TabIndex = 9;
+            this.msiMode.SelectedIndexChanged += new System.EventHandler(this.msiMode_SelectedIndexChanged);
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.msiHttp);
+            this.groupBox2.Location = new System.Drawing.Point(6, 58);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(291, 50);
+            this.groupBox2.TabIndex = 12;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "MSI Info Web";
+            // 
+            // msiHttp
+            // 
+            this.msiHttp.Location = new System.Drawing.Point(6, 19);
+            this.msiHttp.Name = "msiHttp";
+            this.msiHttp.Size = new System.Drawing.Size(279, 20);
+            this.msiHttp.TabIndex = 3;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.msiDesc);
+            this.groupBox1.Location = new System.Drawing.Point(6, 6);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(291, 50);
+            this.groupBox1.TabIndex = 11;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "MSI Info Description";
+            // 
+            // msiDesc
+            // 
+            this.msiDesc.Location = new System.Drawing.Point(6, 19);
+            this.msiDesc.Name = "msiDesc";
+            this.msiDesc.Size = new System.Drawing.Size(279, 20);
+            this.msiDesc.TabIndex = 3;
             // 
             // SignForm
             // 
@@ -486,11 +582,13 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(862, 465);
             this.Controls.Add(this.log);
+            this.Controls.Add(this.msiPanel);
             this.Controls.Add(this.lPanel);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "SignForm";
             this.Text = "PE Significator by dkxce (github.com/dkxce)";
             this.Load += new System.EventHandler(this.CmdLnArFrm_Load);
+            this.Resize += new System.EventHandler(this.SignForm_Resize);
             this.lPanel.ResumeLayout(false);
             this.gFiles.ResumeLayout(false);
             this.contextMenuStrip1.ResumeLayout(false);
@@ -504,6 +602,12 @@
             this.gbThumb.PerformLayout();
             this.gbPfx.ResumeLayout(false);
             this.gbPfx.PerformLayout();
+            this.msiPanel.ResumeLayout(false);
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -551,5 +655,14 @@
         private System.Windows.Forms.ToolStripMenuItem configsItem;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ComboBox ovMode;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem5;
+        private System.Windows.Forms.ToolStripMenuItem mSISetingsToolStripMenuItem;
+        private System.Windows.Forms.Panel msiPanel;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.TextBox msiHttp;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.TextBox msiDesc;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.ComboBox msiMode;
     }
 }

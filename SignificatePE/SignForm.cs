@@ -46,7 +46,7 @@ namespace dkxce
 
             Assembly assembly = Assembly.GetExecutingAssembly();
             FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
-            this.Text += $" v{fvi.FileVersion}";
+            this.Text += $" v{fvi.FileVersion} ST";
         }
 
         protected override void OnHandleCreated(EventArgs e)
@@ -114,6 +114,7 @@ namespace dkxce
 
             selMode.SelectedIndex = 0;
             selHash.SelectedIndex = 0;
+            msiMode.SelectedIndex = 0;
             LoadCfg();            
             Run(true, "/s /w=0 /?");
         }
@@ -126,6 +127,18 @@ namespace dkxce
 
         private void Run(bool proceed = false, string mycommand = null)
         {
+            List<FileItem> INTFILES = new List<FileItem>();
+            List<FileItem> MSIFILES = new List<FileItem>();
+
+            if (fList.Items.Count > 0)
+            {
+                foreach (FileItem item in fList.Items)
+                    if ((selMode.SelectedIndex == 1 || selMode.SelectedIndex == 2) && msiMode.SelectedIndex == 1 && Path.GetExtension(item.FileName).ToLower().Trim('.') == "msi") 
+                        MSIFILES.Add(item);
+                    else 
+                        INTFILES.Add(item);
+            };
+
             string fileName = Environment.GetCommandLineArgs()[0];
             ProcessStartInfo psi = new ProcessStartInfo(fileName);            
             psi.UseShellExecute = false;
@@ -166,17 +179,18 @@ namespace dkxce
                     if (!string.IsNullOrEmpty(ts))
                         psi.Arguments += $" /h={ts}";
                 };
+
                 if (selMode.SelectedIndex > 0)
                 {
-                    if (fList.Items.Count == 0)
+                    if (fList.Items.Count == 0)   // No files at all
                         psi.Arguments += " *";
-                    else if (fList.Items.Count == 1)
-                        psi.Arguments += $" \"{(fList.Items[0] as FileItem).FileName}\"";
+                    else if (INTFILES.Count == 1) // 1 non .msi file
+                        psi.Arguments += $" \"{(INTFILES[0] as FileItem).FileName}\"";
                     else
                     {
                         tmpfn = Path.GetTempFileName();
                         List<string> files = new List<string>();
-                        foreach (FileItem fi in fList.Items)
+                        foreach (FileItem fi in INTFILES)
                             files.Add(fi.FileName);
                         File.WriteAllLines(tmpfn, files);
                         psi.Arguments += $" \"@{tmpfn}\"";
@@ -186,22 +200,37 @@ namespace dkxce
                 log.Clear();
                 log.Text = $"MODE: {selMode.Text}\r\n\r\n{Path.GetFileName(psi.FileName)} {psi.Arguments}\r\n\r\n";
 
-                if(selMode.SelectedIndex == 1 && fList.Items.Count == 1)
-                {
-                    string ts = selTimeServer.Text.Trim();
-                    if (string.IsNullOrEmpty(ts))
-                        ts += selTimeServer.Items[0];
-                    string al = ha[selHash.SelectedIndex];
-                    log.Text += $"signtool.exe sign /d %INFO_DESC% /du %INFO_HTTP% /f \"{pfxEdit.Text}\" /p \"{passEdit.Text}\" /tr {ts} /td {al} /fd {al} \"{(fList.Items[0] as FileItem).FileName}\"\r\n\r\n";
-                };
 
-                if (selMode.SelectedIndex == 3 && fList.Items.Count == 1)
+                for (int mi = 0; mi < MSIFILES.Count; mi++)
                 {
-                    string ts = selTimeServer.Text.Trim();
-                    if (string.IsNullOrEmpty(ts))
-                        ts += selTimeServer.Items[0];
-                    string al = ha[selHash.SelectedIndex];
-                    log.Text += $"signtool.exe verify /all /v /pa \"{(fList.Items[0] as FileItem).FileName}\"\r\n\r\n";
+                    if (selMode.SelectedIndex == 1)
+                    {
+                        string ts = selTimeServer.Text.Trim();
+                        if (string.IsNullOrEmpty(ts))
+                            ts += selTimeServer.Items[0];
+                        string al = ha[selHash.SelectedIndex];
+                        string INFO_DESC = string.IsNullOrEmpty(msiDesc.Text) ? "%INFO_DESC%" : msiDesc.Text;
+                        string INFO_HTTP = string.IsNullOrEmpty(msiHttp.Text) ? "%INFO_HTTP%" : msiHttp.Text;
+                        log.Text += $"signtool.exe sign /d \"{INFO_DESC}\" /du \"{INFO_HTTP}\" /f \"{pfxEdit.Text}\" /p \"{passEdit.Text}\" /tr {ts} /td SHA256 /fd SHA256 \"{(MSIFILES[mi] as FileItem).FileName}\"\r\n\r\n";
+                    };
+                    if (selMode.SelectedIndex == 2)
+                    {
+                        string ts = selTimeServer.Text.Trim();
+                        if (string.IsNullOrEmpty(ts))
+                            ts += selTimeServer.Items[0];
+                        string al = ha[selHash.SelectedIndex];
+                        string INFO_DESC = string.IsNullOrEmpty(msiDesc.Text) ? "%INFO_DESC%" : msiDesc.Text;
+                        string INFO_HTTP = string.IsNullOrEmpty(msiHttp.Text) ? "%INFO_HTTP%" : msiHttp.Text;
+                        log.Text += $"signtool.exe sign /sha1 \"{eThumb.Text.Trim()}\" \"{INFO_DESC}\" /du \"{INFO_HTTP}\" /tr {ts} /td SHA256 /fd SHA256 \"{(MSIFILES[mi] as FileItem).FileName}\"\r\n\r\n";
+                    };
+                    if (selMode.SelectedIndex == 3)
+                    {
+                        string ts = selTimeServer.Text.Trim();
+                        if (string.IsNullOrEmpty(ts))
+                            ts += selTimeServer.Items[0];
+                        string al = ha[selHash.SelectedIndex];
+                        log.Text += $"signtool.exe verify /all /v /pa \"{(MSIFILES[mi] as FileItem).FileName}\"\r\n\r\n";
+                    };
                 };
             }
             else
@@ -213,17 +242,91 @@ namespace dkxce
             if (proceed)
             {
                 runBtn.Enabled = false;
-                try
+                if (!string.IsNullOrEmpty(mycommand)) /* LAUNCH ONLY COMMAND */
                 {
-                    Process proc = new Process() { StartInfo = psi };
-                    proc.OutputDataReceived += (s, e) => AppendTextBox($"{e.Data}\r\n");
-                    proc.Start();
-                    proc.BeginOutputReadLine();
-                    proc.WaitForExit();
+                    try
+                    {
+                        Process proc = new Process() { StartInfo = psi };
+                        proc.OutputDataReceived += (s, e) => AppendTextBox($"{e.Data}\r\n");
+                        proc.Start();
+                        proc.BeginOutputReadLine();
+                        proc.WaitForExit();
+                    }
+                    catch (Exception ex) { AppendTextBox($"Error: {ex.Message}\r\n"); };
                 }
-                catch (Exception ex)
+                else /* IF FILES */
                 {
-                    AppendTextBox($"Error: {ex.Message}\r\n");
+                    if (fList.Items.Count == 0 /* any */ || INTFILES.Count > 0 /* specified */)
+                    {
+                        try
+                        {
+                            Process proc = new Process() { StartInfo = psi };
+                            proc.OutputDataReceived += (s, e) => AppendTextBox($"{e.Data}\r\n");
+                            proc.Start();
+                            proc.BeginOutputReadLine();
+                            proc.WaitForExit();
+                        }
+                        catch (Exception ex) { AppendTextBox($"Error: {ex.Message}\r\n"); };
+                    };
+                    if (MSIFILES.Count > 0 /* .msi files by signtool */)
+                    {
+                        int cnts = 0;
+
+                        // https://learn.microsoft.com/ru-ru/dotnet/framework/tools/signtool-exe //
+                        string tmpf = Path.GetTempFileName();
+                        File.Move(tmpf, tmpf + ".exe");
+                        tmpf += ".exe";
+                        File.WriteAllBytes(tmpf, global::SignificatePE.Properties.Resources.signtool);
+
+                        ProcessStartInfo stsi = new ProcessStartInfo(tmpf);
+                        stsi.UseShellExecute = false;
+                        stsi.RedirectStandardOutput = true;                        
+
+                        foreach (FileItem msif in MSIFILES)
+                        {
+                            Application.DoEvents();
+                            AppendTextBox($"PROCESS FILE WITH SIGNTOOL:\r\n{{\r\n  ");
+                            try
+                            {
+                                stsi.Arguments = "sign ";
+                                if (selMode.SelectedIndex == 1) stsi.Arguments += $"/f \"{pfxEdit.Text.Trim()}\" /p \"{passEdit.Text.Trim()}\" ";
+                                if (selMode.SelectedIndex == 2) stsi.Arguments += $"/sha1 \"{eThumb.Text.Trim()}\" ";
+                                stsi.Arguments += "/fd SHA256 /td SHA256 "; // only sha256 support
+                                if (!string.IsNullOrEmpty(msiDesc.Text)) stsi.Arguments += $"/d \"{msiDesc.Text}\" ";
+                                if (!string.IsNullOrEmpty(msiHttp.Text)) stsi.Arguments += $"/du \"{msiHttp.Text}\" ";
+                                if (!string.IsNullOrEmpty(selTimeServer.Text)) stsi.Arguments += $"/tr {selTimeServer.Text} "; else stsi.Arguments += $"/tr http://timestamp.comodoca.com ";
+                                stsi.Arguments += $"\"{msif.FileName}\"";
+
+                                AppendTextBox($"Name: {Path.GetFileName(msif.FileName)}\r\n  Path: {msif.FileName}\r\n  ");
+                                AppendTextBox($"Cmd: signtool {stsi.Arguments}\r\n\r\n  Results:\r\n\r\n  ");
+
+                                Process proc = new Process() { StartInfo = stsi };
+                                proc.Start(); proc.WaitForExit();
+                                string res = proc.StandardOutput.ReadToEnd();
+                                if (!string.IsNullOrEmpty(res)) AppendTextBox(res.Replace("\r\n", "\r\n  ").TrimEnd(new char[] { '\r', '\n', ' ' }));
+                                string oktext = proc.ExitCode == 1 ? "Error" : "OK";
+                                AppendTextBox($"\r\n  ExitCode: {proc.ExitCode} {oktext}\r\n");
+                                if (proc.ExitCode != 1) cnts++;
+                            }
+                            catch (Exception ex) { AppendTextBox($"  Error: {ex.Message}\r\n"); };
+                            try
+                            {
+                                stsi.Arguments = $"verify /v /pa \"{msif.FileName}\"";
+                                Process proc = new Process() { StartInfo = stsi };
+                                proc.OutputDataReceived += (s, e) => AppendTextBox($"{e.Data}\r\n");
+                                proc.Start(); proc.WaitForExit();
+                                string res = proc.StandardOutput.ReadToEnd();
+                                if (!string.IsNullOrEmpty(res)) AppendTextBox(res.Replace("\r\n", "\r\n  ").TrimEnd(new char[] { '\r', '\n', ' ' }));
+                            }
+                            catch (Exception ex) { AppendTextBox($"  Error: {ex.Message}\r\n"); };
+                            AppendTextBox("\r\n}\r\n");
+                        };
+
+                        File.Delete(tmpf);
+                        AppendTextBox("***************************************************************\r\n");
+                        AppendTextBox($"**************************FILES:{cnts:D6}*************************\r\n");
+                        AppendTextBox("***************************************************************\r\n");
+                    };
                 };
                 runBtn.Enabled = true;
             }
@@ -343,6 +446,10 @@ namespace dkxce
                 selHash.SelectedIndex = cfg.HASHALG;
                 fList.Items.Clear();
                 ovMode.SelectedIndex = cfg.APPEND;
+                msiDesc.Text = cfg.MSIDESC;
+                msiHttp.Text = cfg.MSIHTTP;
+                msiPanel.Visible = mSISetingsToolStripMenuItem.Checked = cfg.MSIVIS;
+                msiMode.SelectedIndex = cfg.MSIMODE;
                 if (cfg.FILES != null && cfg.FILES.Count > 0)
                 {
                     DropFiles(cfg.FILES.ToArray());
@@ -384,7 +491,11 @@ namespace dkxce
                 THUMBPRINT = eThumb.Text.Trim(),
                 HASHALG = (byte)selHash.SelectedIndex,
                 TIMESERVER = selTimeServer.Text.Trim(),
-                APPEND = (byte)ovMode.SelectedIndex
+                APPEND = (byte)ovMode.SelectedIndex,
+                MSIDESC = msiDesc.Text,
+                MSIHTTP = msiHttp.Text,
+                MSIMODE = (byte)msiMode.SelectedIndex,
+                MSIVIS = msiPanel.Visible,
             };
             if (string.IsNullOrEmpty(fileName))
             {
@@ -519,6 +630,31 @@ namespace dkxce
                 e.DrawFocusRectangle();
             };
         }
+
+        private void mSISetingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            msiPanel.Visible = mSISetingsToolStripMenuItem.Checked = !mSISetingsToolStripMenuItem.Checked;
+        }
+
+        private void msiMode_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            msiHttp.Enabled = msiDesc.Enabled = msiMode.SelectedIndex == 1;
+        }
+
+        private void SignForm_Resize(object sender, EventArgs e)
+        {
+            if(gFiles.Height > 260)
+            {
+                msiPanel.Parent = gFiles;                
+                msiPanel.Dock = DockStyle.Bottom;
+                msiPanel.Height = 160;
+            }
+            else
+            {
+                msiPanel.Parent = this;
+                msiPanel.Dock = DockStyle.Right;
+            };
+        }
     }
 
     public class FileItem
@@ -540,14 +676,18 @@ namespace dkxce
 
     [IniSection("CONFIG")]
     public class SignConfig: IniSaved<SignConfig>
-    {
-        public byte MODE;
+    {        
+        public byte MODE;        
         public string CERTIFICATE;
         public string PASSWORD;
         public string THUMBPRINT;
         public byte HASHALG;
         public string TIMESERVER;
         public byte APPEND;
+        public byte MSIMODE;
+        public string MSIDESC;
+        public string MSIHTTP;
+        public bool MSIVIS;
         public List<string> FILES = new List<string>();
         public List<string> PfxList = new List<string>();
         public List<string> ThumbList = new List<string>();
