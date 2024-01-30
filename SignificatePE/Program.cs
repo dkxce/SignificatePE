@@ -16,6 +16,17 @@ using static dkxce.SignificatePE;
 
 namespace dkxce
 {
+    /*
+     * Return Status Codes:
+     * 0x00FFF - Signs or Files Count
+     * 0x01000 - Help Mode
+     * 0x02000 - Window Mode
+     * 0x03000 - Verify Mode
+     * 0x04000 - Remove Mode
+     * 0x05000 - Overwrite Mode
+     * 0x06000 - Append Mode
+     * 0x10000 - ERROR
+     */
     internal class Program
     {
 
@@ -33,8 +44,9 @@ namespace dkxce
         #endregion DllImports
 
         [STAThread]
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
+            int result = 0x05000;
             string cert = null;
             string pass = null;
             string thmb = null;
@@ -60,7 +72,7 @@ namespace dkxce
                         thmb = arg.Substring(3);
                     if ((arg.StartsWith("/h=") || arg.StartsWith("-h=")) && arg.Length > 3)
                         hurl = arg.Substring(3);
-                    if ((arg.StartsWith("/a=") || arg.StartsWith("-a=")) || (arg.StartsWith("/A=") || arg.StartsWith("-A=")) && arg.Length > 3)
+                    if ((arg.StartsWith("/a=") || arg.StartsWith("-a=") || arg.StartsWith("/A=") || arg.StartsWith("-A=")) && arg.Length > 3)
                     {
                         string algs = arg.Substring(3).ToLower();
                         if(algs.Contains("sha") && !Algos.Contains(SignificatePE.CALG_SHA)) Algos.Add(SignificatePE.CALG_SHA);
@@ -70,13 +82,13 @@ namespace dkxce
                     if ((arg.StartsWith("/w=") || arg.StartsWith("-w=")) && arg.Length > 3 && ushort.TryParse(arg.Substring(3), out ushort to))
                         wait = to;
                     if (arg.StartsWith("/v") || arg.StartsWith("-v"))
-                        verify = true;
+                    { verify = true; result = 0x03000; };
                     if (arg.StartsWith("/r") || arg.StartsWith("-r") || arg.StartsWith("/d") || arg.StartsWith("-d"))
-                        remove = true;
+                    { remove = true; result = 0x04000; };
                     if (arg.StartsWith("/s") || arg.StartsWith("-s"))
                         silent = true;
                     if (arg.StartsWith("/n") || arg.StartsWith("-n"))
-                        ovw_mode = SignificateMode.Append;
+                    { ovw_mode = SignificateMode.Append; result = 0x06000; };
                     if (arg.StartsWith("/") || arg.StartsWith("-")) continue;
                     if (arg.StartsWith("@") && arg.Length > 1)
                     {
@@ -98,27 +110,28 @@ namespace dkxce
             /* HEADER */
             Console.WriteLine("***************************************************************");
             Console.WriteLine("********            dkxce PE Significator           ***********");
+            Console.WriteLine("********                 v 2024-01-30               ***********");
             Console.WriteLine("********    http://github.com/dkxce/SignificatePE   ***********");
             Console.WriteLine("***************************************************************");
-            Console.WriteLine("*****                                                    ******");
-            Console.WriteLine("***** Usage:                                             ******");
-            Console.WriteLine("******      > SignificatePE.exe [flags] <file> [file]    ******");
-            Console.WriteLine("***** Flags:                                             ******");
-            Console.WriteLine("******      /c=<file>   - Specify Certificate File (pfx) ******");
-            Console.WriteLine("******      /p=<pass>   - Specify Certificate Password   ******");
-            Console.WriteLine("******      /t=<thmb>   - Set Certificate by Thumbprint  ******");
-            Console.WriteLine("******      /h=<url>    - Set Custom TimeStamp Server    ******");
-            Console.WriteLine("******      /a=<alg>    - Set Hash Alg (sha, s256, s512) ******");            
-            Console.WriteLine("******      /w=<sec>    - Wait Timeout In ms             ******");            
-            Console.WriteLine("******      /r or /d    - Remove Signatures (DeSign)     ******");
-            Console.WriteLine("******      /n          - Append New Mode (multisign)    ******");
-            Console.WriteLine("******      /v          - Verify Only (No Sign)          ******");
-            Console.WriteLine("******      /s          - Silent Mode (No Questions)     ******");
-            Console.WriteLine("******                                                   ******");
+            Console.WriteLine("*****                                                     *****");
+            Console.WriteLine("***** Usage:                                              *****");
+            Console.WriteLine("*****       > SignificatePE.exe [flags] <file> [file]     *****");
+            Console.WriteLine("***** Flags:                                              *****");
+            Console.WriteLine("*****       /c=<file>   - Specify Certificate File (pfx)  *****");
+            Console.WriteLine("*****       /p=<pass>   - Specify Certificate Password    *****");
+            Console.WriteLine("*****       /t=<thmb>   - Set Certificate by Thumbprint   *****");
+            Console.WriteLine("*****       /h=<url>    - Set Custom TimeStamp Server     *****");
+            Console.WriteLine("*****       /a=<alg>    - Set Hash Alg (sha, s256, s512)  *****");            
+            Console.WriteLine("*****       /w=<sec>    - Wait Timeout In ms              *****");            
+            Console.WriteLine("*****       /r or /d    - Remove Signatures (DeSign)      *****");
+            Console.WriteLine("*****       /n          - Append New Mode (multisign)     *****");
+            Console.WriteLine("*****       /v          - Verify Only (No Sign)           *****");
+            Console.WriteLine("*****       /s          - Silent Mode (No Questions)      *****");
+            Console.WriteLine("*****                                                     *****");
             Console.WriteLine("***************************************************************");
             Console.WriteLine("***************************************************************");
             Console.WriteLine("***************************************************************");            
-            if (help) { Thread.Sleep(wait == 0 ? 0 : 3500); return; };
+            if (help) { Thread.Sleep(wait == 0 ? 0 : 3500); return result += 0x1000; };
             Console.WriteLine();
 
             /* WINDOW MODE */
@@ -131,12 +144,12 @@ namespace dkxce
                 IntPtr cHandle = GetConsoleWindow();
                 if(cHandle != IntPtr.Zero) (new Thread(new ThreadStart(() => { Thread.Sleep(1000); ShowWindow(cHandle, SW_HIDE); }))).Start();
                 System.Windows.Forms.Application.Run(signForm);
-                return;
+                return result += 0x2000;
             };
 
             /* CHECKS */            
-            if (string.IsNullOrEmpty(cert) && string.IsNullOrEmpty(thmb) && !verify && !remove) { Console.WriteLine("Certificate or Thumbprint not set"); System.Threading.Thread.Sleep(3500); return; };
-            if (files.Count == 0) { Console.WriteLine("File(s) not set"); System.Threading.Thread.Sleep(3500); return; };
+            if (string.IsNullOrEmpty(cert) && string.IsNullOrEmpty(thmb) && !verify && !remove) { Console.WriteLine("Certificate or Thumbprint not set"); System.Threading.Thread.Sleep(3500); return result += 0x10001; };
+            if (files.Count == 0) { Console.WriteLine("File(s) not set"); System.Threading.Thread.Sleep(3500); return result += 0x10002; };
 
             /* PROCESS */
             try
@@ -152,6 +165,7 @@ namespace dkxce
                         Console.WriteLine($"   Path: {fi.FullName}");
                         Verify(fi.FullName);
                         Console.WriteLine($" }} ");
+                        result++;
                     };
                 }
                 else if (remove)
@@ -169,6 +183,7 @@ namespace dkxce
                         if(ex != null) Console.WriteLine($"   Error: {ex.Message}");
                         Verify(fi.FullName);
                         Console.WriteLine($" }} ");
+                        result++;
                     };
                 }
                 else
@@ -213,6 +228,7 @@ namespace dkxce
                                     };
                                     break;
                                 };
+                                result++;
                             };
                             Verify(fi.FullName);
                             Console.WriteLine($" }} ");
@@ -238,7 +254,8 @@ namespace dkxce
                                 Console.WriteLine($"     Status: {res}");
                                 Exception ex = SignificatePE.GetLastError();
                                 if (ex == null) ex = new System.ComponentModel.Win32Exception(0);
-                                Console.WriteLine($"     Info: {ex.Message}");                                
+                                Console.WriteLine($"     Info: {ex.Message}");
+                                result++;
                             };
                             Verify(fi.FullName);
                             Console.WriteLine($" }} ");
@@ -250,11 +267,13 @@ namespace dkxce
             }
             catch (Exception ex) { Console.WriteLine($"   Error: {ex}"); Console.WriteLine($" }} ");  };
             Console.WriteLine();
-            
+
             Console.WriteLine("***************************************************************");
+            Console.WriteLine($"**************************RESULT:{result:X6}************************");
             Console.WriteLine("***************************************************************");
 
-            System.Threading.Thread.Sleep(wait);            
+            System.Threading.Thread.Sleep(wait);
+            return result;
         }        
                 
         private static void Verify(string fileName)
