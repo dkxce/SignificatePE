@@ -10,6 +10,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Windows.Forms;
 
 namespace dkxce
 {
@@ -343,6 +344,7 @@ namespace dkxce
             {
                 X509Certificate2 cert = string.IsNullOrEmpty(certPassword) ? new X509Certificate2(certPath) : new X509Certificate2(certPath, certPassword);
                 // -2147024810 Incorrect Passw //                
+                //MessageBox.Show(cert.GetExpirationDateString());
 
                 pSignerCert = CreateSignerCert(cert, ref append, GetFriendlyAlgoName(CALC_ALG), filePath);
                 pSubjectInfo = CreateSignerSubjectInfo(filePath);
@@ -432,6 +434,7 @@ namespace dkxce
             try
             {
                 X509Certificate2 cert = FindCertByThumbprint(thumbprint);
+                //MessageBox.Show(cert.GetExpirationDateString());
 
                 pSignerCert = CreateSignerCert(cert, ref append, GetFriendlyAlgoName(CALC_ALG), filePath);
                 pSubjectInfo = CreateSignerSubjectInfo(filePath);

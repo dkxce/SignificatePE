@@ -88,12 +88,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="InputBox.cs" />
     <Compile Include="PassCrypt.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Serializables.cs" />
     <Compile Include="SignForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -113,6 +115,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="SignForm.resx">
       <DependentUpon>SignForm.cs</DependentUpon>
@@ -120,7 +123,14 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="keysign.ico" />
+    <None Include="Resources\pvk2pfx.exe" />
+    <None Include="Resources\MakeCert.exe" />
+    <None Include="Resources\RunAsDate.exe" />
+    <None Include="Resources\SignificatePE.xmlb" />
     <None Include="Resources\signtool.exe" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="bin\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 using static dkxce.SignificatePE;
+using SignificatePE;
 
 namespace dkxce
 {
@@ -43,6 +44,8 @@ namespace dkxce
         private const int SW_SHOW = 5;
 
         #endregion DllImports
+
+
 
         [STAThread]
         static int Main(string[] args)
@@ -113,7 +116,7 @@ namespace dkxce
             /* HEADER */
             Console.WriteLine("***************************************************************");
             Console.WriteLine("********            dkxce PE Significator           ***********");
-            Console.WriteLine("********               v 2024-01-30 ST              ***********");
+            Console.WriteLine("********               v 2024-02-05 ST              ***********");
             Console.WriteLine("********    http://github.com/dkxce/SignificatePE   ***********");
             Console.WriteLine("***************************************************************");
             Console.WriteLine("*****                                                     *****");

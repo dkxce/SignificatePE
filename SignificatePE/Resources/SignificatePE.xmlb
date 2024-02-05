@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Command Line Arguments Config for MakeCert.exe Utility -->
+<!-- Full List or Arguments: `MakeCert.exe -?` and `MakeCert.exe -!` -->
+<MakeCertConfig>
+  <!-- arguments help https://learn.microsoft.com/en-us/windows/win32/seccrypto/makecert?redirectedfrom=MSDN -->
+  <!-- arguments help https://learn.microsoft.com/en-us/previous-versions/dotnet/netframework-4.0/bfsktky3(v=vs.100)?redirectedfrom=MSDN -->
+  <!-- arguments help https://learn.microsoft.com/en-us/powershell/module/pki/new-selfsignedcertificate?view=windowsserver2022-ps -->  
+  <Arguments for="MakeCert" comment="MakeCert.exe command line arguments">    
+    <!-- if key starts with `!` or ` ` then skip -->
+	<!-- if text is empty then no trailing parameter -->
+    <arg key="-r"   comment="Creates a self-signed certificate."/>
+    <arg key="-pe"  comment="Marks the private key as exportable."/>
+    <arg key="-l"   comment="Link to SPC agency policy information (for example, a URL).">https://github.com/dkxce/SignificatePE</arg>
+    <arg key="!-b"  comment="Date the certificate first becomes valid. The default is when the certificate is created. The format of DateStart is mm/dd/yyyy.">01/01/2024</arg>
+    <arg key="-e"   comment="Date when the validity period ends. The default is the year 2039. The format of DateStart is mm/dd/yyyy.">12/22/2050</arg>
+    <arg key="-a"   comment="Hash algorithm. Must be set to either SHA-1 or MD5 (default).">sha256</arg>
+    <arg key="-len" comment="Generated Key Length (Bits). Default to '2048' for 'RSA' and '512' for 'DSS'.">2048</arg>
+  </Arguments>
+  <SubjectCertificateName arg_param_name="-n" comment="X.500 standard (X.509 Attributes table list) rfc4519">
+	<!-- keys help https://datatracker.ietf.org/doc/html/rfc4519 -->
+    <!-- if key starts with `!` or ` ` then skip -->
+	<!-- if text is empty then skip -->
+    <param key="serialNumber"   comment="SN">NO</param>
+    <param key="C"              comment="Country">US</param>
+	<param key="!S"             comment="State"></param>
+    <param key="!L"             comment="Locality">NY</param>    
+	<param key="!streetAddress" comment="Street Address"></param>
+    <param key="!postalCode"    comment="Postal Code"></param>
+    <param key="O"              comment="Organization Name">SignificatePE</param>
+    <param key="!OU"            comment="Organization Unit">SignificatePE</param>
+    <param key="description"    comment="Description">Example Certificate Desc</param>
+    <param key="!title"         comment="Key Title">Example Certificate Title</param>
+    <param key="GN"             comment="Given Name">Example Certificate Name</param>
+	<param key="CN"             comment="Common Name (Doamin)">www.example.com</param>    
+    <param key="!SN"            comment="SurName"></param>
+    <param key="E"              comment="Email">e@mail.me</param>
+  </SubjectCertificateName>
+  <OIDs arg_param_name="-eku" comment="Enhanced key usage object identifiers">
+    <!-- keys https://www.alvestrand.no/objectid/1.3.6.1.5.5.7.3.html -->
+    <!-- keys https://access.redhat.com/documentation/ru-ru/red_hat_certificate_system/9/html/administration_guide/standard_x.509_v3_certificate_extensions#doc-wrapper -->
+	<!-- if key starts with `!` or ` ` then skip -->
+	<!-- text is not used -->
+	<oid key="1.3.6.1.5.5.7.3.1"      comment="Server authentication"/>
+	<oid key="1.3.6.1.5.5.7.3.2"      comment="Client authentication"/>
+	<oid key="1.3.6.1.5.5.7.3.3"      comment="Code signing"/>
+	<oid key="1.3.6.1.5.5.7.3.4"      comment="Email"/>
+	<oid key="1.3.6.1.5.5.7.3.8"      comment="Timestamping"/>
+	<oid key="1.3.6.1.5.5.7.3.9"      comment="OCSP Signing"/>
+	<oid key="1.3.6.1.4.1.311.10.3.1" comment="Certificate trust list signing"/>
+	<oid key="1.3.6.1.5.5.7.3.19"     comment="Control And Provisioning of Wireless Access Points, Wireless Termination Points"/>
+  </OIDs>
+</MakeCertConfig>

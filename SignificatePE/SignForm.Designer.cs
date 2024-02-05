@@ -46,10 +46,16 @@
             this.openConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
+            this.retroactively = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripSeparator();
             this.mSISetingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
             this.configsItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
+            this.createCertificateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.makecerFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem7 = new System.Windows.Forms.ToolStripSeparator();
+            this.editConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openWindowsCertMgrToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -79,6 +85,10 @@
             this.msiHttp = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.msiDesc = new System.Windows.Forms.TextBox();
+            this.editConfigToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.createcerFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.createpfxFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem8 = new System.Windows.Forms.ToolStripSeparator();
             this.lPanel.SuspendLayout();
             this.gFiles.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
@@ -103,7 +113,7 @@
             this.lPanel.Dock = System.Windows.Forms.DockStyle.Left;
             this.lPanel.Location = new System.Drawing.Point(0, 0);
             this.lPanel.Name = "lPanel";
-            this.lPanel.Size = new System.Drawing.Size(320, 465);
+            this.lPanel.Size = new System.Drawing.Size(320, 499);
             this.lPanel.TabIndex = 0;
             // 
             // gFiles
@@ -112,7 +122,7 @@
             this.gFiles.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gFiles.Location = new System.Drawing.Point(0, 298);
             this.gFiles.Name = "gFiles";
-            this.gFiles.Size = new System.Drawing.Size(320, 138);
+            this.gFiles.Size = new System.Drawing.Size(320, 172);
             this.gFiles.TabIndex = 9;
             this.gFiles.TabStop = false;
             this.gFiles.Text = "Files";
@@ -125,7 +135,7 @@
             this.fList.Location = new System.Drawing.Point(3, 16);
             this.fList.Name = "fList";
             this.fList.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.fList.Size = new System.Drawing.Size(314, 119);
+            this.fList.Size = new System.Drawing.Size(314, 153);
             this.fList.TabIndex = 3;
             this.fList.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.fList_DrawItem);
             // 
@@ -175,7 +185,7 @@
             this.bottomPanel.Controls.Add(this.clsBtn);
             this.bottomPanel.Controls.Add(this.runBtn);
             this.bottomPanel.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.bottomPanel.Location = new System.Drawing.Point(0, 436);
+            this.bottomPanel.Location = new System.Drawing.Point(0, 470);
             this.bottomPanel.Name = "bottomPanel";
             this.bottomPanel.Size = new System.Drawing.Size(320, 29);
             this.bottomPanel.TabIndex = 8;
@@ -208,15 +218,18 @@
             this.openConfigurationToolStripMenuItem,
             this.saveConfigurationToolStripMenuItem,
             this.toolStripMenuItem5,
+            this.retroactively,
+            this.toolStripMenuItem6,
             this.mSISetingsToolStripMenuItem,
             this.toolStripMenuItem4,
             this.configsItem,
             this.toolStripMenuItem2,
+            this.createCertificateToolStripMenuItem,
             this.openWindowsCertMgrToolStripMenuItem,
             this.toolStripMenuItem3,
             this.aboutToolStripMenuItem});
             this.contextMenuStrip2.Name = "contextMenuStrip2";
-            this.contextMenuStrip2.Size = new System.Drawing.Size(215, 182);
+            this.contextMenuStrip2.Size = new System.Drawing.Size(215, 232);
             this.contextMenuStrip2.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip2_Opening);
             // 
             // newConfigurationToolStripMenuItem
@@ -245,6 +258,18 @@
             this.toolStripMenuItem5.Name = "toolStripMenuItem5";
             this.toolStripMenuItem5.Size = new System.Drawing.Size(211, 6);
             // 
+            // retroactively
+            // 
+            this.retroactively.Name = "retroactively";
+            this.retroactively.Size = new System.Drawing.Size(214, 22);
+            this.retroactively.Text = "Sign Retroactively...";
+            this.retroactively.Click += new System.EventHandler(this.retroactively_Click);
+            // 
+            // toolStripMenuItem6
+            // 
+            this.toolStripMenuItem6.Name = "toolStripMenuItem6";
+            this.toolStripMenuItem6.Size = new System.Drawing.Size(211, 6);
+            // 
             // mSISetingsToolStripMenuItem
             // 
             this.mSISetingsToolStripMenuItem.Name = "mSISetingsToolStripMenuItem";
@@ -267,6 +292,36 @@
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
             this.toolStripMenuItem2.Size = new System.Drawing.Size(211, 6);
+            // 
+            // createCertificateToolStripMenuItem
+            // 
+            this.createCertificateToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.makecerFileToolStripMenuItem,
+            this.toolStripMenuItem7,
+            this.editConfigurationToolStripMenuItem});
+            this.createCertificateToolStripMenuItem.Name = "createCertificateToolStripMenuItem";
+            this.createCertificateToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
+            this.createCertificateToolStripMenuItem.Text = "Create Certificate";
+            this.createCertificateToolStripMenuItem.Click += new System.EventHandler(this.createCertificateToolStripMenuItem_Click);
+            // 
+            // makecerFileToolStripMenuItem
+            // 
+            this.makecerFileToolStripMenuItem.Name = "makecerFileToolStripMenuItem";
+            this.makecerFileToolStripMenuItem.Size = new System.Drawing.Size(193, 22);
+            this.makecerFileToolStripMenuItem.Text = "Make .cer or .pfx file ...";
+            this.makecerFileToolStripMenuItem.Click += new System.EventHandler(this.makecerFileToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItem7
+            // 
+            this.toolStripMenuItem7.Name = "toolStripMenuItem7";
+            this.toolStripMenuItem7.Size = new System.Drawing.Size(190, 6);
+            // 
+            // editConfigurationToolStripMenuItem
+            // 
+            this.editConfigurationToolStripMenuItem.Name = "editConfigurationToolStripMenuItem";
+            this.editConfigurationToolStripMenuItem.Size = new System.Drawing.Size(193, 22);
+            this.editConfigurationToolStripMenuItem.Text = "Edit configuration ...";
+            this.editConfigurationToolStripMenuItem.Click += new System.EventHandler(this.editConfigurationToolStripMenuItem_Click);
             // 
             // openWindowsCertMgrToolStripMenuItem
             // 
@@ -360,11 +415,6 @@
             // selTimeServer
             // 
             this.selTimeServer.FormattingEnabled = true;
-            this.selTimeServer.Items.AddRange(new object[] {
-            "http://timestamp.digicert.com",
-            "http://timestamp.comodoca.com",
-            "http://timestamp.sectigo.com",
-            "http://tsa.starfieldtech.com"});
             this.selTimeServer.Location = new System.Drawing.Point(6, 19);
             this.selTimeServer.Name = "selTimeServer";
             this.selTimeServer.Size = new System.Drawing.Size(279, 21);
@@ -504,7 +554,7 @@
             this.log.Name = "log";
             this.log.ReadOnly = true;
             this.log.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.log.Size = new System.Drawing.Size(238, 465);
+            this.log.Size = new System.Drawing.Size(238, 499);
             this.log.TabIndex = 1;
             // 
             // msiPanel
@@ -515,7 +565,7 @@
             this.msiPanel.Dock = System.Windows.Forms.DockStyle.Right;
             this.msiPanel.Location = new System.Drawing.Point(558, 0);
             this.msiPanel.Name = "msiPanel";
-            this.msiPanel.Size = new System.Drawing.Size(304, 465);
+            this.msiPanel.Size = new System.Drawing.Size(304, 499);
             this.msiPanel.TabIndex = 9;
             this.msiPanel.Visible = false;
             // 
@@ -576,11 +626,35 @@
             this.msiDesc.Size = new System.Drawing.Size(279, 20);
             this.msiDesc.TabIndex = 3;
             // 
+            // editConfigToolStripMenuItem
+            // 
+            this.editConfigToolStripMenuItem.Name = "editConfigToolStripMenuItem";
+            this.editConfigToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.editConfigToolStripMenuItem.Text = "Edit config ...";
+            this.editConfigToolStripMenuItem.Click += new System.EventHandler(this.editConfigToolStripMenuItem_Click);
+            // 
+            // createcerFileToolStripMenuItem
+            // 
+            this.createcerFileToolStripMenuItem.Name = "createcerFileToolStripMenuItem";
+            this.createcerFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.createcerFileToolStripMenuItem.Text = "Create .cer file";
+            // 
+            // createpfxFileToolStripMenuItem
+            // 
+            this.createpfxFileToolStripMenuItem.Name = "createpfxFileToolStripMenuItem";
+            this.createpfxFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.createpfxFileToolStripMenuItem.Text = "Create .pfx file ...";
+            // 
+            // toolStripMenuItem8
+            // 
+            this.toolStripMenuItem8.Name = "toolStripMenuItem8";
+            this.toolStripMenuItem8.Size = new System.Drawing.Size(177, 6);
+            // 
             // SignForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(862, 465);
+            this.ClientSize = new System.Drawing.Size(862, 499);
             this.Controls.Add(this.log);
             this.Controls.Add(this.msiPanel);
             this.Controls.Add(this.lPanel);
@@ -664,5 +738,15 @@
         private System.Windows.Forms.TextBox msiDesc;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.ComboBox msiMode;
+        private System.Windows.Forms.ToolStripMenuItem retroactively;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem6;
+        private System.Windows.Forms.ToolStripMenuItem createCertificateToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem createcerFileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem createpfxFileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem8;
+        private System.Windows.Forms.ToolStripMenuItem editConfigToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem makecerFileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem7;
+        private System.Windows.Forms.ToolStripMenuItem editConfigurationToolStripMenuItem;
     }
 }

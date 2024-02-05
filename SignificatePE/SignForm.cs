@@ -5,6 +5,7 @@
 // en,ru,1251,utf-8
 //
 
+using SignificatePE;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -36,6 +37,14 @@ namespace dkxce
         AutoCompleteStringCollection eThumbCache = new AutoCompleteStringCollection();
         AutoCompleteStringCollection pfxCache = new AutoCompleteStringCollection();
 
+        public List<string> TimeServers = new List<string>() { 
+            "NO_TIMESTAMP",
+            "http://timestamp.digicert.com",
+            "http://timestamp.comodoca.com",
+            "http://timestamp.sectigo.com",
+            "http://tsa.starfieldtech.com"
+        };
+
         public SignForm()
         {
             InitializeComponent();
@@ -47,6 +56,8 @@ namespace dkxce
             Assembly assembly = Assembly.GetExecutingAssembly();
             FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
             this.Text += $" v{fvi.FileVersion} ST";
+
+            selTimeServer.Items.AddRange(TimeServers.ToArray());
         }
 
         protected override void OnHandleCreated(EventArgs e)
@@ -104,6 +115,8 @@ namespace dkxce
         
         private void CmdLnArFrm_Load(object sender, EventArgs e)
         {
+            //MessageBox.Show(DateTime.UtcNow.ToString());
+
             eThumb.AutoCompleteSource = AutoCompleteSource.CustomSource;
             eThumb.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             eThumb.AutoCompleteCustomSource = eThumbCache;
@@ -147,6 +160,7 @@ namespace dkxce
 
             string tmpfn = null;
 
+            DateTime? retroactDT = null; // sign with expired cert //
             if (string.IsNullOrEmpty(mycommand))
             {
                 if (selMode.SelectedIndex == 0 /* HELP */)
@@ -177,7 +191,17 @@ namespace dkxce
                     };
                     string ts = selTimeServer.Text.Trim();
                     if (!string.IsNullOrEmpty(ts))
-                        psi.Arguments += $" /h={ts}";
+                    {
+                        if (DateTime.TryParse(selTimeServer.Text.Trim(), out DateTime radt))
+                        {                            
+                            retroactDT = radt;
+                            psi.Arguments += $" /h=NO_TIMESTAMP";
+                        }
+                        else
+                        {
+                            psi.Arguments += $" /h={ts}";
+                        };
+                    };
                 };
 
                 if (selMode.SelectedIndex > 0)
@@ -188,7 +212,7 @@ namespace dkxce
                         psi.Arguments += $" \"{(INTFILES[0] as FileItem).FileName}\"";
                     else
                     {
-                        tmpfn = Path.GetTempFileName();
+                        tmpfn = CreateTempFile(null);
                         List<string> files = new List<string>();
                         foreach (FileItem fi in INTFILES)
                             files.Add(fi.FileName);
@@ -245,8 +269,8 @@ namespace dkxce
                 if (!string.IsNullOrEmpty(mycommand)) /* LAUNCH ONLY COMMAND */
                 {
                     try
-                    {
-                        Process proc = new Process() { StartInfo = psi };
+                    {                        
+                        Process proc = new Process() { StartInfo = psi };                        
                         proc.OutputDataReceived += (s, e) => AppendTextBox($"{e.Data}\r\n");
                         proc.Start();
                         proc.BeginOutputReadLine();
@@ -258,24 +282,47 @@ namespace dkxce
                 {
                     if (fList.Items.Count == 0 /* any */ || INTFILES.Count > 0 /* specified */)
                     {
+                        string tmpf = null;
                         try
-                        {
+                        {                            
+                            if (retroactDT.HasValue)
+                            {
+                                tmpf = CreateTempFile(".exe");
+                                File.WriteAllBytes(tmpf, global::SignificatePE.Properties.Resources.RunAsDate);
+
+                                // RunAsDate Utility
+                                //   https://www.nirsoft.net/utils/run_as_date.html
+                                // Examples:
+                                //   RunAsDate.exe 22\10\2002 12:35:22 "C:\Program Files\Microsoft Office\OFFICE11\OUTLOOK.EXE"
+                                //   RunAsDate.exe 14\02\2005 "c:\temp\myprogram.exe" param1 param2
+                                //   RunAsDate.exe /movetime 11\08\2004 16:21:42 "C:\Program Files\Microsoft Office\OFFICE11\OUTLOOK.EXE"
+                                //   RunAsDate.exe /movetime / returntime 15 10\12\2001 11:41:26 "c:\temp\myprogram.exe"
+                                //   RunAsDate.exe Hours:-10 "C:\Program Files\Microsoft Office\OFFICE11\OUTLOOK.EXE"
+                                //   RunAsDate.exe 22\03\2008 10:10:25 Attach: Outlook.exe
+                                //   RunAsDate.exe 20\08\2003 20:20:45 Attach: 2744
+
+                                string dtf = retroactDT.Value.ToString(@"dd\\MM\\yyyy HH:mm:ss");
+                                string cd = IniSaved<int>.CurrentDirectory().TrimEnd('\\');
+                                psi.Arguments = $"/movetime /startin \"{cd}\" {dtf} {psi.FileName} {psi.Arguments}";
+                                psi.FileName = tmpf;
+                            };
+
                             Process proc = new Process() { StartInfo = psi };
                             proc.OutputDataReceived += (s, e) => AppendTextBox($"{e.Data}\r\n");
                             proc.Start();
                             proc.BeginOutputReadLine();
                             proc.WaitForExit();
+                            
                         }
-                        catch (Exception ex) { AppendTextBox($"Error: {ex.Message}\r\n"); };
+                        catch (Exception ex) { AppendTextBox($"Error: {ex.Message}\r\n"); }
+                        finally { if (tmpf != null) try { File.Delete(tmpf); } catch { }; };
                     };
                     if (MSIFILES.Count > 0 /* .msi files by signtool */)
                     {
                         int cnts = 0;
 
                         // https://learn.microsoft.com/ru-ru/dotnet/framework/tools/signtool-exe //
-                        string tmpf = Path.GetTempFileName();
-                        File.Move(tmpf, tmpf + ".exe");
-                        tmpf += ".exe";
+                        string tmpf = CreateTempFile(".exe");
                         File.WriteAllBytes(tmpf, global::SignificatePE.Properties.Resources.signtool);
 
                         ProcessStartInfo stsi = new ProcessStartInfo(tmpf);
@@ -322,7 +369,7 @@ namespace dkxce
                             AppendTextBox("\r\n}\r\n");
                         };
 
-                        File.Delete(tmpf);
+                        try { File.Delete(tmpf); } catch { };
                         AppendTextBox("***************************************************************\r\n");
                         AppendTextBox($"**************************FILES:{cnts:D6}*************************\r\n");
                         AppendTextBox("***************************************************************\r\n");
@@ -444,6 +491,7 @@ namespace dkxce
                 try { passEdit.Text = PassCrypt.Decrypt(cfg.PASSWORD.Trim(), "SignificatePE::dkxce.SignForm"); } catch { passEdit.Text = ""; };
                 eThumb.Text = cfg.THUMBPRINT;
                 selHash.SelectedIndex = cfg.HASHALG;
+                selTimeServer.Text = cfg.TIMESERVER;
                 fList.Items.Clear();
                 ovMode.SelectedIndex = cfg.APPEND;
                 msiDesc.Text = cfg.MSIDESC;
@@ -654,6 +702,164 @@ namespace dkxce
                 msiPanel.Parent = this;
                 msiPanel.Dock = DockStyle.Right;
             };
+        }
+
+        private void retroactively_Click(object sender, EventArgs e)
+        {
+            DateTime dt = DateTime.Now;
+            if (DateTime.TryParse(selTimeServer.Text.Trim(), out DateTime res)) dt = res;
+            string dtf = "yyyy-MM-dd HH:mm:ss";
+            if (InputBox.QueryDateTime("Sign Retroactively", "Select Date and Time:", dtf, ref dt) != DialogResult.OK) return;
+            selTimeServer.Text = dt.ToString(dtf);
+        }
+
+        private void createCertificateToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void editConfigToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void editConfigurationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveSignificatePEXml(out string fName);
+            try
+            {
+                System.Diagnostics.Process.Start("notepad.exe", fName);
+            }
+            catch (Exception ex) 
+            { 
+                MessageBox.Show(ex.Message, "Configuration Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            };
+        }
+
+        private void SaveSignificatePEXml(out string fName, bool force = false)
+        {
+            fName = Path.Combine(IniSaved<int>.CurrentDirectory(), "SignificatePE.xml");
+            if (force || !File.Exists(fName))
+            {
+                try
+                {
+                    File.WriteAllBytes(fName, global::SignificatePE.Properties.Resources.xmlb);
+                }
+                catch { };
+            };
+        }
+       
+        private void makecerFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog ofd = new SaveFileDialog();
+            ofd.Filter = "CER Files (*.cer)|*.cer|PFX Files (*.pfx)|*.pfx";
+            ofd.DefaultExt = ".cer";
+            if (ofd.ShowDialog() != DialogResult.OK) { ofd.Dispose(); return; };
+            string fn = ofd.FileName;
+            ofd.Dispose();
+            string fe = Path.GetExtension(fn).ToLower();
+            bool isPfx = fe == ".pfx";
+            string cerf = Path.Combine(Path.GetDirectoryName(fn), $"{Path.GetFileNameWithoutExtension(fn)}.cer");
+
+            SaveSignificatePEXml(out _);
+            MakeCertConfig ck = MakeCertConfig.Defaults();
+            List<string> files2del = new List<string>();
+            try
+            {
+                string pvkf = Path.Combine(Path.GetDirectoryName(fn), $"{Path.GetFileNameWithoutExtension(fn)}.pvk");
+                string pfxf = Path.Combine(Path.GetDirectoryName(fn), $"{Path.GetFileNameWithoutExtension(fn)}.pfx");
+
+                try { File.Delete(cerf); } catch { };
+                try { File.Delete(pvkf); } catch { };
+                try { File.Delete(pfxf); } catch { };
+                Thread.Sleep(500);
+
+                string txtRes = "";
+                if (isPfx)
+                {                                        
+                    string cmdl = ck.CmdLine + $" -ss my -sv {pvkf} {cerf}";                    
+                    /* MakeCert */ 
+                    {
+                        string tmpf = CreateTempFile(".exe");
+                        files2del.Add(tmpf);
+                        File.WriteAllBytes(tmpf, global::SignificatePE.Properties.Resources.MakeCert);
+                        {
+                            ProcessStartInfo psi = new ProcessStartInfo(tmpf, cmdl);
+                            psi.WindowStyle = ProcessWindowStyle.Hidden;
+                            psi.CreateNoWindow = true;
+                            psi.UseShellExecute = false;
+                            psi.RedirectStandardOutput = true;
+                            Process proc = new Process() { StartInfo = psi };
+                            proc.OutputDataReceived += (_, ed) => txtRes += $"{ed.Data}\r\n";
+                            proc.Start();
+                            proc.BeginOutputReadLine();
+                            { int wait = 90000; while ((!proc.HasExited) && wait > 0) { Thread.Sleep(200); wait -= 200; }; }; // pData.WaitForExit(30000);
+                        };
+                    };
+                    /* pvk2pfx */ 
+                    {                                                
+                        string tmpf = CreateTempFile(".exe");
+                        files2del.Add(tmpf);
+                        File.WriteAllBytes(tmpf, global::SignificatePE.Properties.Resources.pvk2pfx);
+                        {
+                            ProcessStartInfo psi = new ProcessStartInfo(tmpf, $"-pvk \"{pvkf}\" -spc \"{cerf}\" -pfx \"{pfxf}\"");
+                            psi.WindowStyle = ProcessWindowStyle.Hidden;
+                            psi.CreateNoWindow = true;
+                            psi.UseShellExecute = false;
+                            psi.RedirectStandardOutput = true;
+                            Process proc = new Process() { StartInfo = psi };
+                            proc.OutputDataReceived += (_, ed) => txtRes += $"{ed.Data}\r\n";
+                            proc.Start();
+                            proc.BeginOutputReadLine();
+                            { int wait = 300000 /* 5 min */; while ((!proc.HasExited) && wait > 0) { Thread.Sleep(200); wait -= 200; }; }; // pData.WaitForExit(30000);
+                        };
+                    };
+                }
+                else
+                {
+                    string cmdl = ck.CmdLine + $" -ss my {cerf}";
+                    /* MakeCert */ 
+                    {
+                        string tmpf = CreateTempFile(".exe");
+                        files2del.Add(tmpf);
+                        File.WriteAllBytes(tmpf, global::SignificatePE.Properties.Resources.MakeCert);
+                        {
+                            ProcessStartInfo psi = new ProcessStartInfo(tmpf, cmdl);
+                            psi.WindowStyle = ProcessWindowStyle.Hidden;
+                            psi.CreateNoWindow = true;
+                            psi.UseShellExecute = false;
+                            psi.RedirectStandardOutput = true;
+                            Process proc = new Process() { StartInfo = psi };
+                            proc.OutputDataReceived += (_, ed) => txtRes += $"{ed.Data}\r\n";
+                            proc.Start();
+                            proc.BeginOutputReadLine();
+                            { int wait = 300000 /* 5 min */; while ((!proc.HasExited) && wait > 0) { Thread.Sleep(200); wait -= 200; }; }; // pData.WaitForExit(30000);
+                        };
+                    };                    
+                };
+                txtRes = txtRes.TrimEnd(new char[] { '\r', '\n' });
+                // try { Process.Start("rundll32.exe", $"cryptext.dll, CryptExtOpenCER {cerf}"); } catch { };
+                MessageBox.Show(txtRes, "Make .cer or .pfx file ...", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Make .cer or .pfx file ...", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                foreach (string f in files2del) try { File.Delete(f); } catch { };
+            };
+        }
+        
+        private static string CreateTempFile(string extention)
+        {
+            string tmpf = Path.GetTempFileName();
+            if (!string.IsNullOrEmpty(extention))
+            {
+                File.Move(tmpf, tmpf + extention);
+                tmpf += extention;
+            };
+            return tmpf;
         }
     }
 

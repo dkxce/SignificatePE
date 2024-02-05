@@ -1,10 +1,10 @@
-C:\Users\dkxce\source\repos\Significator\SignificatePE\obj\Debug\SignificatePE.csproj.AssemblyReference.cache
-C:\Users\dkxce\source\repos\Significator\SignificatePE\obj\Debug\SignificatePE.csproj.CoreCompileInputs.cache
-C:\Users\dkxce\source\repos\Significator\SignificatePE\obj\Debug\SignificatePE.exe
-C:\Users\dkxce\source\repos\Significator\SignificatePE\obj\Debug\SignificatePE.pdb
-C:\Users\dkxce\source\repos\Significator\SignificatePE\obj\Debug\SignificatePE.csproj.GenerateResource.cache
-C:\Users\dkxce\source\repos\Significator\SignificatePE\obj\Debug\dkxce.SignForm.resources
 C:\Users\dkxce\source\repos\Significator\SignificatePE\bin\SignificatePE.exe.config
 C:\Users\dkxce\source\repos\Significator\SignificatePE\bin\SignificatePE.exe
 C:\Users\dkxce\source\repos\Significator\SignificatePE\bin\SignificatePE.pdb
+C:\Users\dkxce\source\repos\Significator\SignificatePE\obj\Debug\SignificatePE.csproj.AssemblyReference.cache
 C:\Users\dkxce\source\repos\Significator\SignificatePE\obj\Debug\SignificatePE.Properties.Resources.resources
+C:\Users\dkxce\source\repos\Significator\SignificatePE\obj\Debug\dkxce.SignForm.resources
+C:\Users\dkxce\source\repos\Significator\SignificatePE\obj\Debug\SignificatePE.csproj.GenerateResource.cache
+C:\Users\dkxce\source\repos\Significator\SignificatePE\obj\Debug\SignificatePE.csproj.CoreCompileInputs.cache
+C:\Users\dkxce\source\repos\Significator\SignificatePE\obj\Debug\SignificatePE.exe
+C:\Users\dkxce\source\repos\Significator\SignificatePE\obj\Debug\SignificatePE.pdb
