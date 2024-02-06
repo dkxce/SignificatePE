@@ -15,6 +15,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace dkxce
@@ -36,13 +37,21 @@ namespace dkxce
 
         AutoCompleteStringCollection eThumbCache = new AutoCompleteStringCollection();
         AutoCompleteStringCollection pfxCache = new AutoCompleteStringCollection();
+        object tsaServer = null;
 
         public List<string> TimeServers = new List<string>() { 
             "NO_TIMESTAMP",
+            "INTERNAL",
             "http://timestamp.digicert.com",
             "http://timestamp.comodoca.com",
             "http://timestamp.sectigo.com",
-            "http://tsa.starfieldtech.com"
+            "http://tsa.starfieldtech.com",
+            "http://freetsa.org/tsr",
+            "http://time.certum.pl",
+            "http://timestamp.geotrust.com/tsa",
+            "http://timestamp.globalsign.com/scripts/timstamp.dll",
+            "http://tsa.starfieldtech.com",
+            "https://teszt.e-szigno.hu:440/tsa",            
         };
 
         public SignForm()
@@ -57,7 +66,7 @@ namespace dkxce
             FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
             this.Text += $" v{fvi.FileVersion} ST";
 
-            selTimeServer.Items.AddRange(TimeServers.ToArray());
+            selTimeServer.Items.AddRange(TimeServers.ToArray());           
         }
 
         protected override void OnHandleCreated(EventArgs e)
@@ -199,7 +208,10 @@ namespace dkxce
                         }
                         else
                         {
-                            psi.Arguments += $" /h={ts}";
+                            if (ts == "INTERNAL")
+                                psi.Arguments += $" /h=http://localhost:{TSAServer.TSAPort}{TSAServer.TSAPath}";
+                            else
+                                psi.Arguments += $" /h={ts}";
                         };
                     };
                 };
@@ -860,6 +872,35 @@ namespace dkxce
                 tmpf += extention;
             };
             return tmpf;
+        }
+
+        private void SignForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if(tsaServer != null)
+            {
+                try { ((TSAServer)tsaServer).Stop(); } catch { };
+                tsaServer = null;
+            };
+            TSAServer.KillAll();
+        }
+
+        private void selTimeServer_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (selTimeServer.Text.Trim() == "INTERNAL" && tsaServer == null)
+            {
+                statusStrip1.Visible = true;
+                toolStripStatusLabel2.Text = "Loading";
+                tsaServer = true;
+                Task t = new Task(() =>
+                {
+                    TSAServer tsas = new TSAServer();
+                    toolStripStatusLabel2.Text = "Initializing";
+                    int port = tsas.Start(out Exception ex);
+                    toolStripStatusLabel2.Text = tsas.IsRunning ? $"Running, {tsas.Url}" : $"{ex}";
+                    tsaServer = tsas;
+                });
+                t.Start();
+            };
         }
     }
 

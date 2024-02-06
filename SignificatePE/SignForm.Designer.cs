@@ -89,6 +89,9 @@
             this.createcerFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createpfxFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem8 = new System.Windows.Forms.ToolStripSeparator();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.lPanel.SuspendLayout();
             this.gFiles.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
@@ -103,6 +106,7 @@
             this.groupBox3.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox1.SuspendLayout();
+            this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // lPanel
@@ -113,7 +117,7 @@
             this.lPanel.Dock = System.Windows.Forms.DockStyle.Left;
             this.lPanel.Location = new System.Drawing.Point(0, 0);
             this.lPanel.Name = "lPanel";
-            this.lPanel.Size = new System.Drawing.Size(320, 499);
+            this.lPanel.Size = new System.Drawing.Size(320, 512);
             this.lPanel.TabIndex = 0;
             // 
             // gFiles
@@ -122,7 +126,7 @@
             this.gFiles.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gFiles.Location = new System.Drawing.Point(0, 298);
             this.gFiles.Name = "gFiles";
-            this.gFiles.Size = new System.Drawing.Size(320, 172);
+            this.gFiles.Size = new System.Drawing.Size(320, 185);
             this.gFiles.TabIndex = 9;
             this.gFiles.TabStop = false;
             this.gFiles.Text = "Files";
@@ -135,7 +139,7 @@
             this.fList.Location = new System.Drawing.Point(3, 16);
             this.fList.Name = "fList";
             this.fList.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.fList.Size = new System.Drawing.Size(314, 153);
+            this.fList.Size = new System.Drawing.Size(314, 166);
             this.fList.TabIndex = 3;
             this.fList.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.fList_DrawItem);
             // 
@@ -185,7 +189,7 @@
             this.bottomPanel.Controls.Add(this.clsBtn);
             this.bottomPanel.Controls.Add(this.runBtn);
             this.bottomPanel.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.bottomPanel.Location = new System.Drawing.Point(0, 470);
+            this.bottomPanel.Location = new System.Drawing.Point(0, 483);
             this.bottomPanel.Name = "bottomPanel";
             this.bottomPanel.Size = new System.Drawing.Size(320, 29);
             this.bottomPanel.TabIndex = 8;
@@ -419,6 +423,7 @@
             this.selTimeServer.Name = "selTimeServer";
             this.selTimeServer.Size = new System.Drawing.Size(279, 21);
             this.selTimeServer.TabIndex = 9;
+            this.selTimeServer.SelectedIndexChanged += new System.EventHandler(this.selTimeServer_SelectedIndexChanged);
             // 
             // gHash
             // 
@@ -554,7 +559,7 @@
             this.log.Name = "log";
             this.log.ReadOnly = true;
             this.log.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.log.Size = new System.Drawing.Size(238, 499);
+            this.log.Size = new System.Drawing.Size(238, 512);
             this.log.TabIndex = 1;
             // 
             // msiPanel
@@ -565,7 +570,7 @@
             this.msiPanel.Dock = System.Windows.Forms.DockStyle.Right;
             this.msiPanel.Location = new System.Drawing.Point(558, 0);
             this.msiPanel.Name = "msiPanel";
-            this.msiPanel.Size = new System.Drawing.Size(304, 499);
+            this.msiPanel.Size = new System.Drawing.Size(304, 512);
             this.msiPanel.TabIndex = 9;
             this.msiPanel.Visible = false;
             // 
@@ -650,17 +655,43 @@
             this.toolStripMenuItem8.Name = "toolStripMenuItem8";
             this.toolStripMenuItem8.Size = new System.Drawing.Size(177, 6);
             // 
+            // statusStrip1
+            // 
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel1,
+            this.toolStripStatusLabel2});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 490);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(862, 22);
+            this.statusStrip1.TabIndex = 10;
+            this.statusStrip1.Text = "statusStrip1";
+            this.statusStrip1.Visible = false;
+            // 
+            // toolStripStatusLabel1
+            // 
+            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(152, 17);
+            this.toolStripStatusLabel1.Text = "Internal Time Server Status: ";
+            // 
+            // toolStripStatusLabel2
+            // 
+            this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
+            this.toolStripStatusLabel2.Size = new System.Drawing.Size(47, 17);
+            this.toolStripStatusLabel2.Text = "No info";
+            // 
             // SignForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(862, 499);
+            this.ClientSize = new System.Drawing.Size(862, 512);
             this.Controls.Add(this.log);
             this.Controls.Add(this.msiPanel);
             this.Controls.Add(this.lPanel);
+            this.Controls.Add(this.statusStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "SignForm";
             this.Text = "PE Significator by dkxce (github.com/dkxce)";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SignForm_FormClosing);
             this.Load += new System.EventHandler(this.CmdLnArFrm_Load);
             this.Resize += new System.EventHandler(this.SignForm_Resize);
             this.lPanel.ResumeLayout(false);
@@ -682,6 +713,8 @@
             this.groupBox2.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -748,5 +781,8 @@
         private System.Windows.Forms.ToolStripMenuItem makecerFileToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem7;
         private System.Windows.Forms.ToolStripMenuItem editConfigurationToolStripMenuItem;
+        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;
     }
 }

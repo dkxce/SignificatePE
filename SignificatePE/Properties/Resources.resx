@@ -118,6 +118,9 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="BouncyCastle" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\BouncyCastle.Crypto.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="MakeCert" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\MakeCert.exe;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
@@ -129,6 +132,12 @@
   </data>
   <data name="signtool" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\signtool.exe;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="TSACER" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\TSA.crt;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="TSAPRV" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\TSA.key;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="xmlb" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\SignificatePE.xmlb;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>

@@ -14,6 +14,9 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using static dkxce.SignificatePE;
 using SignificatePE;
+using System.Diagnostics;
+using System.Reflection;
+using System.Windows.Forms;
 
 namespace dkxce
 {
@@ -47,9 +50,24 @@ namespace dkxce
 
 
 
+        class ProxyDomain : MarshalByRefObject
+{
+    public Assembly GetAssembly(string assemblyPath)
+    {
+        try
+        {
+            return Assembly.LoadFrom(assemblyPath);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException(ex.Message);
+        }
+    }
+}
+
         [STAThread]
         static int Main(string[] args)
-        {
+        {                       
             int result = 0x05000;
             string cert = null;
             string pass = null;
@@ -116,7 +134,7 @@ namespace dkxce
             /* HEADER */
             Console.WriteLine("***************************************************************");
             Console.WriteLine("********            dkxce PE Significator           ***********");
-            Console.WriteLine("********               v 2024-02-05 ST              ***********");
+            Console.WriteLine("********             v 2024-02-06 ST TSA            ***********");
             Console.WriteLine("********    http://github.com/dkxce/SignificatePE   ***********");
             Console.WriteLine("***************************************************************");
             Console.WriteLine("*****                                                     *****");
@@ -290,7 +308,7 @@ namespace dkxce
             System.Threading.Thread.Sleep(wait);
             return result;
         }        
-                
+
         private static void Verify(string fileName)
         {
             try
@@ -316,7 +334,7 @@ namespace dkxce
                 };
             }
             catch { };
-        }
+        }        
     }
 }
 

@@ -63,6 +63,16 @@ namespace SignificatePE.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] BouncyCastle {
+            get {
+                object obj = ResourceManager.GetObject("BouncyCastle", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] MakeCert {
             get {
                 object obj = ResourceManager.GetObject("MakeCert", resourceCulture);
@@ -96,6 +106,26 @@ namespace SignificatePE.Properties {
         internal static byte[] signtool {
             get {
                 object obj = ResourceManager.GetObject("signtool", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] TSACER {
+            get {
+                object obj = ResourceManager.GetObject("TSACER", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] TSAPRV {
+            get {
+                object obj = ResourceManager.GetObject("TSAPRV", resourceCulture);
                 return ((byte[])(obj));
             }
         }

@@ -8,3 +8,5 @@ C:\Users\dkxce\source\repos\Significator\SignificatePE\obj\Debug\SignificatePE.c
 C:\Users\dkxce\source\repos\Significator\SignificatePE\obj\Debug\SignificatePE.csproj.CoreCompileInputs.cache
 C:\Users\dkxce\source\repos\Significator\SignificatePE\obj\Debug\SignificatePE.exe
 C:\Users\dkxce\source\repos\Significator\SignificatePE\obj\Debug\SignificatePE.pdb
+C:\Users\dkxce\source\repos\Significator\SignificatePE\obj\Debug\SignificatePE.csproj.CopyComplete
+C:\Users\dkxce\source\repos\Significator\SignificatePE\bin\BouncyCastle.Crypto.dll

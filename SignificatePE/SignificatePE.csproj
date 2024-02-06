@@ -76,6 +76,10 @@
     <ApplicationIcon>keysign.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BouncyCastle.Crypto, Version=1.8.4.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -103,6 +107,7 @@
       <DependentUpon>SignForm.cs</DependentUpon>
     </Compile>
     <Compile Include="IniSaved.cs" />
+    <Compile Include="TSAServer.cs" />
     <Compile Include="Verificator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -110,6 +115,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Resources\TSA.crt" />
+    <None Include="Resources\TSA.key" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -123,6 +130,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="keysign.ico" />
+    <None Include="Resources\BouncyCastle.Crypto.dll" />
     <None Include="Resources\pvk2pfx.exe" />
     <None Include="Resources\MakeCert.exe" />
     <None Include="Resources\RunAsDate.exe" />
