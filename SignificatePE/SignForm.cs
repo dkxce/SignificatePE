@@ -436,6 +436,7 @@ namespace dkxce
             gHash.Enabled = selMode.SelectedIndex == 1 || selMode.SelectedIndex == 2;
             gTimeServer.Enabled = selMode.SelectedIndex == 1 || selMode.SelectedIndex == 2;
             ovMode.Enabled = selMode.SelectedIndex == 1 || selMode.SelectedIndex == 2;
+            UpdateWITTS();
         }
 
         private void pfxBtn_Click(object sender, EventArgs e)
@@ -681,6 +682,7 @@ namespace dkxce
         private void ovMode_SelectedIndexChanged(object sender, EventArgs e)
         {
             selHash.Refresh();
+            UpdateWITTS();
         }
 
         private void selHash_DrawItem(object sender, DrawItemEventArgs e)
@@ -972,7 +974,8 @@ namespace dkxce
         private void UpdateWITTS()
         {
             string tsaText = selTimeServer.Text.Trim();
-            tsYes.Visible = tsYes.Enabled = tsNo.Visible = tsNo.Enabled = DateTime.TryParse(tsaText, out _);
+            tsYes.Visible = tsYes.Enabled = tsNo.Visible = tsNo.Enabled = (selMode.SelectedIndex == 1 || selMode.SelectedIndex == 2) && DateTime.TryParse(tsaText, out _);
+            tsHelp.Visible = selMode.SelectedIndex == 1 || selMode.SelectedIndex == 2;
 
             if (string.IsNullOrEmpty(tsaText))
                 tsHelp.Text = "Random Available Server";
@@ -985,7 +988,7 @@ namespace dkxce
             else
                 tsHelp.Text = "RFC3161";
 
-            if (tsaText == "INTERNAL" || (tsYes.Enabled && tsYes.Checked))
+            if ((selMode.SelectedIndex == 1 || selMode.SelectedIndex == 2) && (tsaText == "INTERNAL" || (tsYes.Enabled && tsYes.Checked)))
                 StartTSAServer();
             else
                 StopTSAServer();
