@@ -45,12 +45,11 @@
             this.newConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
+            this.configsItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
             this.retroactively = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripSeparator();
             this.mSISetingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
-            this.configsItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.createCertificateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.makecerFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -65,6 +64,9 @@
             this.label3 = new System.Windows.Forms.Label();
             this.ovMode = new System.Windows.Forms.ComboBox();
             this.gTimeServer = new System.Windows.Forms.GroupBox();
+            this.tsHelp = new System.Windows.Forms.Label();
+            this.tsNo = new System.Windows.Forms.RadioButton();
+            this.tsYes = new System.Windows.Forms.RadioButton();
             this.selTimeServer = new System.Windows.Forms.ComboBox();
             this.gHash = new System.Windows.Forms.GroupBox();
             this.selHash = new System.Windows.Forms.ComboBox();
@@ -92,6 +94,7 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
             this.lPanel.SuspendLayout();
             this.gFiles.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
@@ -117,16 +120,16 @@
             this.lPanel.Dock = System.Windows.Forms.DockStyle.Left;
             this.lPanel.Location = new System.Drawing.Point(0, 0);
             this.lPanel.Name = "lPanel";
-            this.lPanel.Size = new System.Drawing.Size(320, 512);
+            this.lPanel.Size = new System.Drawing.Size(320, 490);
             this.lPanel.TabIndex = 0;
             // 
             // gFiles
             // 
             this.gFiles.Controls.Add(this.fList);
             this.gFiles.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gFiles.Location = new System.Drawing.Point(0, 298);
+            this.gFiles.Location = new System.Drawing.Point(0, 318);
             this.gFiles.Name = "gFiles";
-            this.gFiles.Size = new System.Drawing.Size(320, 185);
+            this.gFiles.Size = new System.Drawing.Size(320, 143);
             this.gFiles.TabIndex = 9;
             this.gFiles.TabStop = false;
             this.gFiles.Text = "Files";
@@ -139,7 +142,7 @@
             this.fList.Location = new System.Drawing.Point(3, 16);
             this.fList.Name = "fList";
             this.fList.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.fList.Size = new System.Drawing.Size(314, 166);
+            this.fList.Size = new System.Drawing.Size(314, 124);
             this.fList.TabIndex = 3;
             this.fList.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.fList_DrawItem);
             // 
@@ -189,7 +192,7 @@
             this.bottomPanel.Controls.Add(this.clsBtn);
             this.bottomPanel.Controls.Add(this.runBtn);
             this.bottomPanel.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.bottomPanel.Location = new System.Drawing.Point(0, 483);
+            this.bottomPanel.Location = new System.Drawing.Point(0, 461);
             this.bottomPanel.Name = "bottomPanel";
             this.bottomPanel.Size = new System.Drawing.Size(320, 29);
             this.bottomPanel.TabIndex = 8;
@@ -222,18 +225,18 @@
             this.openConfigurationToolStripMenuItem,
             this.saveConfigurationToolStripMenuItem,
             this.toolStripMenuItem5,
+            this.configsItem,
+            this.toolStripMenuItem4,
             this.retroactively,
             this.toolStripMenuItem6,
             this.mSISetingsToolStripMenuItem,
-            this.toolStripMenuItem4,
-            this.configsItem,
             this.toolStripMenuItem2,
             this.createCertificateToolStripMenuItem,
             this.openWindowsCertMgrToolStripMenuItem,
             this.toolStripMenuItem3,
             this.aboutToolStripMenuItem});
             this.contextMenuStrip2.Name = "contextMenuStrip2";
-            this.contextMenuStrip2.Size = new System.Drawing.Size(215, 232);
+            this.contextMenuStrip2.Size = new System.Drawing.Size(215, 254);
             this.contextMenuStrip2.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip2_Opening);
             // 
             // newConfigurationToolStripMenuItem
@@ -257,16 +260,22 @@
             this.saveConfigurationToolStripMenuItem.Text = "Save Configuration ...";
             this.saveConfigurationToolStripMenuItem.Click += new System.EventHandler(this.saveConfigurationToolStripMenuItem_Click);
             // 
-            // toolStripMenuItem5
+            // configsItem
             // 
-            this.toolStripMenuItem5.Name = "toolStripMenuItem5";
-            this.toolStripMenuItem5.Size = new System.Drawing.Size(211, 6);
+            this.configsItem.Name = "configsItem";
+            this.configsItem.Size = new System.Drawing.Size(214, 22);
+            this.configsItem.Text = "Configs:";
+            // 
+            // toolStripMenuItem4
+            // 
+            this.toolStripMenuItem4.Name = "toolStripMenuItem4";
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(211, 6);
             // 
             // retroactively
             // 
             this.retroactively.Name = "retroactively";
             this.retroactively.Size = new System.Drawing.Size(214, 22);
-            this.retroactively.Text = "Sign Retroactively...";
+            this.retroactively.Text = "Sign Retroactively ...";
             this.retroactively.Click += new System.EventHandler(this.retroactively_Click);
             // 
             // toolStripMenuItem6
@@ -280,17 +289,6 @@
             this.mSISetingsToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
             this.mSISetingsToolStripMenuItem.Text = "MSI Settings ...";
             this.mSISetingsToolStripMenuItem.Click += new System.EventHandler(this.mSISetingsToolStripMenuItem_Click);
-            // 
-            // toolStripMenuItem4
-            // 
-            this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(211, 6);
-            // 
-            // configsItem
-            // 
-            this.configsItem.Name = "configsItem";
-            this.configsItem.Size = new System.Drawing.Size(214, 22);
-            this.configsItem.Text = "Configs:";
             // 
             // toolStripMenuItem2
             // 
@@ -379,7 +377,7 @@
             this.topPanel.Dock = System.Windows.Forms.DockStyle.Top;
             this.topPanel.Location = new System.Drawing.Point(0, 0);
             this.topPanel.Name = "topPanel";
-            this.topPanel.Size = new System.Drawing.Size(320, 298);
+            this.topPanel.Size = new System.Drawing.Size(320, 318);
             this.topPanel.TabIndex = 7;
             // 
             // label3
@@ -407,14 +405,52 @@
             // 
             // gTimeServer
             // 
+            this.gTimeServer.Controls.Add(this.tsHelp);
+            this.gTimeServer.Controls.Add(this.tsNo);
+            this.gTimeServer.Controls.Add(this.tsYes);
             this.gTimeServer.Controls.Add(this.selTimeServer);
             this.gTimeServer.Enabled = false;
             this.gTimeServer.Location = new System.Drawing.Point(12, 245);
             this.gTimeServer.Name = "gTimeServer";
-            this.gTimeServer.Size = new System.Drawing.Size(291, 50);
+            this.gTimeServer.Size = new System.Drawing.Size(291, 67);
             this.gTimeServer.TabIndex = 12;
             this.gTimeServer.TabStop = false;
             this.gTimeServer.Text = "Time Server";
+            // 
+            // tsHelp
+            // 
+            this.tsHelp.AutoSize = true;
+            this.tsHelp.Location = new System.Drawing.Point(6, 46);
+            this.tsHelp.Name = "tsHelp";
+            this.tsHelp.Size = new System.Drawing.Size(127, 13);
+            this.tsHelp.TabIndex = 14;
+            this.tsHelp.Text = "Random Available Server";
+            // 
+            // tsNo
+            // 
+            this.tsNo.AutoSize = true;
+            this.tsNo.Checked = true;
+            this.tsNo.Location = new System.Drawing.Point(121, 44);
+            this.tsNo.Name = "tsNo";
+            this.tsNo.Size = new System.Drawing.Size(39, 17);
+            this.tsNo.TabIndex = 12;
+            this.tsNo.TabStop = true;
+            this.tsNo.Text = "No";
+            this.tsNo.UseVisualStyleBackColor = true;
+            this.tsNo.Visible = false;
+            this.tsNo.CheckedChanged += new System.EventHandler(this.tsNo_CheckedChanged);
+            // 
+            // tsYes
+            // 
+            this.tsYes.AutoSize = true;
+            this.tsYes.Location = new System.Drawing.Point(166, 44);
+            this.tsYes.Name = "tsYes";
+            this.tsYes.Size = new System.Drawing.Size(94, 17);
+            this.tsYes.TabIndex = 11;
+            this.tsYes.Text = "Internal Server";
+            this.tsYes.UseVisualStyleBackColor = true;
+            this.tsYes.Visible = false;
+            this.tsYes.CheckedChanged += new System.EventHandler(this.tsYes_CheckedChanged);
             // 
             // selTimeServer
             // 
@@ -424,6 +460,7 @@
             this.selTimeServer.Size = new System.Drawing.Size(279, 21);
             this.selTimeServer.TabIndex = 9;
             this.selTimeServer.SelectedIndexChanged += new System.EventHandler(this.selTimeServer_SelectedIndexChanged);
+            this.selTimeServer.TextChanged += new System.EventHandler(this.selTimeServer_TextChanged);
             // 
             // gHash
             // 
@@ -559,7 +596,7 @@
             this.log.Name = "log";
             this.log.ReadOnly = true;
             this.log.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.log.Size = new System.Drawing.Size(238, 512);
+            this.log.Size = new System.Drawing.Size(238, 490);
             this.log.TabIndex = 1;
             // 
             // msiPanel
@@ -570,7 +607,7 @@
             this.msiPanel.Dock = System.Windows.Forms.DockStyle.Right;
             this.msiPanel.Location = new System.Drawing.Point(558, 0);
             this.msiPanel.Name = "msiPanel";
-            this.msiPanel.Size = new System.Drawing.Size(304, 512);
+            this.msiPanel.Size = new System.Drawing.Size(304, 490);
             this.msiPanel.TabIndex = 9;
             this.msiPanel.Visible = false;
             // 
@@ -665,19 +702,25 @@
             this.statusStrip1.Size = new System.Drawing.Size(862, 22);
             this.statusStrip1.TabIndex = 10;
             this.statusStrip1.Text = "statusStrip1";
-            this.statusStrip1.Visible = false;
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
             this.toolStripStatusLabel1.Size = new System.Drawing.Size(152, 17);
             this.toolStripStatusLabel1.Text = "Internal Time Server Status: ";
+            this.toolStripStatusLabel1.Click += new System.EventHandler(this.toolStripStatusLabel1_Click);
             // 
             // toolStripStatusLabel2
             // 
             this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            this.toolStripStatusLabel2.Size = new System.Drawing.Size(47, 17);
-            this.toolStripStatusLabel2.Text = "No info";
+            this.toolStripStatusLabel2.Size = new System.Drawing.Size(51, 17);
+            this.toolStripStatusLabel2.Text = "Stopped";
+            this.toolStripStatusLabel2.Click += new System.EventHandler(this.toolStripStatusLabel2_Click);
+            // 
+            // toolStripMenuItem5
+            // 
+            this.toolStripMenuItem5.Name = "toolStripMenuItem5";
+            this.toolStripMenuItem5.Size = new System.Drawing.Size(211, 6);
             // 
             // SignForm
             // 
@@ -702,6 +745,7 @@
             this.topPanel.ResumeLayout(false);
             this.topPanel.PerformLayout();
             this.gTimeServer.ResumeLayout(false);
+            this.gTimeServer.PerformLayout();
             this.gHash.ResumeLayout(false);
             this.gbThumb.ResumeLayout(false);
             this.gbThumb.PerformLayout();
@@ -762,7 +806,6 @@
         private System.Windows.Forms.ToolStripMenuItem configsItem;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ComboBox ovMode;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem5;
         private System.Windows.Forms.ToolStripMenuItem mSISetingsToolStripMenuItem;
         private System.Windows.Forms.Panel msiPanel;
         private System.Windows.Forms.GroupBox groupBox2;
@@ -784,5 +827,9 @@
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;
+        private System.Windows.Forms.RadioButton tsNo;
+        private System.Windows.Forms.RadioButton tsYes;
+        private System.Windows.Forms.Label tsHelp;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem5;
     }
 }

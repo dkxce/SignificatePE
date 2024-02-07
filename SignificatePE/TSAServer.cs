@@ -201,6 +201,7 @@ namespace dkxce
             {
                 StreamWriter writer = new StreamWriter(response.OutputStream, Encoding.ASCII);
                 writer.WriteLine("SignificatePE TSA Server by dkxce (https://github.com/dkxce/SignificatePE)");
+                writer.WriteLine($"Current DateTime: {DateTime.UtcNow} UTC");
                 writer.Close();
                 ctx.Response.Close();
             }

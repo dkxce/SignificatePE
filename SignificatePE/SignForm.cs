@@ -37,6 +37,7 @@ namespace dkxce
 
         AutoCompleteStringCollection eThumbCache = new AutoCompleteStringCollection();
         AutoCompleteStringCollection pfxCache = new AutoCompleteStringCollection();
+        Task TSATask = null;
         object tsaServer = null;
 
         public List<string> TimeServers = new List<string>() { 
@@ -64,7 +65,7 @@ namespace dkxce
 
             Assembly assembly = Assembly.GetExecutingAssembly();
             FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
-            this.Text += $" v{fvi.FileVersion} ST";
+            this.Text += $" v{fvi.FileVersion} ST TSA";
 
             selTimeServer.Items.AddRange(TimeServers.ToArray());           
         }
@@ -172,26 +173,27 @@ namespace dkxce
             DateTime? retroactDT = null; // sign with expired cert //
             if (string.IsNullOrEmpty(mycommand))
             {
+                int wait = (selMode.SelectedIndex == 1 || selMode.SelectedIndex == 2) && (selHash.SelectedIndex > 4 || fList.Items.Count > 1) ? 500 : 0;
                 if (selMode.SelectedIndex == 0 /* HELP */)
-                    psi.Arguments = "/s /w=0 /?";
+                    psi.Arguments = $"/s /w={wait} /?";
                 if (selMode.SelectedIndex == 1 /* SIGN BY FILE */)
                 {
                     try { if (!File.Exists(pfxEdit.Text.Trim())) return; } catch { return; };
-                    psi.Arguments = $"/s /w=0 \"/c={pfxEdit.Text}\" /p={passEdit.Text}";
+                    psi.Arguments = $"/s /w={wait} \"/c={pfxEdit.Text}\" /p={passEdit.Text}";
                     if (ovMode.SelectedIndex == 1) psi.Arguments += " /n";
                     if (ovMode.SelectedIndex == 2) psi.Arguments += " /m";
                 };
                 if (selMode.SelectedIndex == 2 /* SIGN BY THUMB */)
                 {
                     if (string.IsNullOrEmpty(eThumb.Text.Trim())) return;
-                    psi.Arguments = $"/s /w=0 \"/t={eThumb.Text.Trim()}\"";
+                    psi.Arguments = $"/s /w={wait} \"/t={eThumb.Text.Trim()}\"";
                     if (ovMode.SelectedIndex == 1) psi.Arguments += " /n";
                     if (ovMode.SelectedIndex == 2) psi.Arguments += " /m";
                 };
                 if (selMode.SelectedIndex == 3 /* VERIFY */)
-                    psi.Arguments = "/s /w=0 /v";
+                    psi.Arguments = $"/s /w={wait} /v";
                 if (selMode.SelectedIndex == 4 /* REMOVE */)
-                    psi.Arguments = "/s /w=0 /r";
+                    psi.Arguments = $"/s /w={wait} /r";
                 if (selMode.SelectedIndex == 1 || selMode.SelectedIndex == 2 /* SIGN */)
                 {
                     if (selHash.SelectedIndex > 0)
@@ -204,7 +206,13 @@ namespace dkxce
                         if (DateTime.TryParse(selTimeServer.Text.Trim(), out DateTime radt))
                         {                            
                             retroactDT = radt;
-                            psi.Arguments += $" /h=NO_TIMESTAMP";
+                            if (tsYes.Checked)
+                            {
+                                string radts = radt.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss");
+                                psi.Arguments += $" /h=http://localhost:{TSAServer.TSAPort}{TSAServer.TSAPath}{radts}";
+                            }
+                            else
+                                psi.Arguments += $" /h=NO_TIMESTAMP";
                         }
                         else
                         {
@@ -503,6 +511,7 @@ namespace dkxce
                 try { passEdit.Text = PassCrypt.Decrypt(cfg.PASSWORD.Trim(), "SignificatePE::dkxce.SignForm"); } catch { passEdit.Text = ""; };
                 eThumb.Text = cfg.THUMBPRINT;
                 selHash.SelectedIndex = cfg.HASHALG;
+                tsYes.Checked = cfg.WITTS;
                 selTimeServer.Text = cfg.TIMESERVER;
                 fList.Items.Clear();
                 ovMode.SelectedIndex = cfg.APPEND;
@@ -556,7 +565,8 @@ namespace dkxce
                 MSIHTTP = msiHttp.Text,
                 MSIMODE = (byte)msiMode.SelectedIndex,
                 MSIVIS = msiPanel.Visible,
-            };
+                WITTS = tsYes.Checked,
+        };
             if (string.IsNullOrEmpty(fileName))
             {
                 foreach (string s in eThumbCache)
@@ -876,32 +886,116 @@ namespace dkxce
 
         private void SignForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if(tsaServer != null)
+            KillTSAServer();
+        }
+
+        private void selTimeServer_SelectedIndexChanged(object sender, EventArgs e) => UpdateWITTS();
+        private void toolStripStatusLabel2_Click(object sender, EventArgs e) => OnClickInternalTSA();
+        private void toolStripStatusLabel1_Click(object sender, EventArgs e) => OnClickInternalTSA();
+        private void selTimeServer_TextChanged(object sender, EventArgs e) => UpdateWITTS();
+
+        #region INTERNAL TSA Server
+
+        private void StartTSAServer()
+        {
+            if (tsaServer != null) return;
+            if (TSATask != null) return;
+
+            TSATask = new Task(() =>
+            {
+                toolStripStatusLabel2.Text = "Loading";
+                this.BeginInvoke((Action)(() => toolStripStatusLabel2.ForeColor = Color.Navy));
+                tsaServer = true;
+                TSAServer tsas = new TSAServer();
+                toolStripStatusLabel2.Text = "Initializing";
+                int port = tsas.Start(out Exception ex);
+                toolStripStatusLabel2.Text = tsas.IsRunning ? $"Running, {tsas.Url}" : $"{ex}";
+                if (tsas.IsRunning)
+                {
+                    this.BeginInvoke((Action)(() =>
+                    {
+                        toolStripStatusLabel2.ForeColor = Color.Green;
+                        statusStrip1.Cursor = Cursors.Hand;
+                    }));
+                };
+                tsaServer = tsas;
+                TSATask = null;
+            });
+            TSATask.Start();
+        }
+
+        private void StopTSAServer()
+        {
+            if (tsaServer == null) return;
+            if (TSATask != null) return;
+
+            TSATask = new Task(() =>
+            {
+                try
+                {
+                    TSAServer tsas = (TSAServer)tsaServer;
+                    toolStripStatusLabel2.Text = "Stopping";
+                    this.BeginInvoke((Action)(() => toolStripStatusLabel2.ForeColor = Color.Maroon));
+                    tsas.Stop();
+                    Thread.Sleep(250);
+                    toolStripStatusLabel2.Text = tsas.IsRunning ? $"Running, {tsas.Url}" : "Stopped";
+                    this.BeginInvoke((Action)(() =>
+                    {
+                        toolStripStatusLabel2.ForeColor = Color.Black;
+                        statusStrip1.Cursor = Cursors.Default;
+                    }));
+                    tsaServer = null;
+                }
+                catch { };
+                TSATask = null;
+            });
+            TSATask.Start();
+        }
+
+        private void KillTSAServer()
+        {
+            try { if (TSATask != null) TSATask.Dispose(); } catch { };
+            if (tsaServer != null)
             {
                 try { ((TSAServer)tsaServer).Stop(); } catch { };
                 tsaServer = null;
             };
             TSAServer.KillAll();
+        }        
+        
+        private void OnClickInternalTSA()
+        {
+            if (toolStripStatusLabel2.Text.StartsWith("Running, "))
+                Process.Start(toolStripStatusLabel2.Text.Substring(9));
         }
 
-        private void selTimeServer_SelectedIndexChanged(object sender, EventArgs e)
+        private void UpdateWITTS()
         {
-            if (selTimeServer.Text.Trim() == "INTERNAL" && tsaServer == null)
-            {
-                statusStrip1.Visible = true;
-                toolStripStatusLabel2.Text = "Loading";
-                tsaServer = true;
-                Task t = new Task(() =>
-                {
-                    TSAServer tsas = new TSAServer();
-                    toolStripStatusLabel2.Text = "Initializing";
-                    int port = tsas.Start(out Exception ex);
-                    toolStripStatusLabel2.Text = tsas.IsRunning ? $"Running, {tsas.Url}" : $"{ex}";
-                    tsaServer = tsas;
-                });
-                t.Start();
-            };
+            string tsaText = selTimeServer.Text.Trim();
+            tsYes.Visible = tsYes.Enabled = tsNo.Visible = tsNo.Enabled = DateTime.TryParse(tsaText, out _);
+
+            if (string.IsNullOrEmpty(tsaText))
+                tsHelp.Text = "Random Available Server";
+            else if (tsaText == "INTERNAL")
+                tsHelp.Text = $"Use internal Timestamp Server";
+            else if (tsaText == "NO_TIMESTAMP")
+                tsHelp.Text = "Signature without timestamp";
+            else if (tsYes.Enabled)
+                tsHelp.Text = "Using Timestamp:";
+            else
+                tsHelp.Text = "RFC3161";
+
+            if (tsaText == "INTERNAL" || (tsYes.Enabled && tsYes.Checked))
+                StartTSAServer();
+            else
+                StopTSAServer();
         }
+
+        #endregion INTERNAL TSA Server
+
+        private void tsYes_CheckedChanged(object sender, EventArgs e) => UpdateWITTS();
+
+        private void tsNo_CheckedChanged(object sender, EventArgs e) => UpdateWITTS();
     }
 
     public class FileItem
@@ -935,6 +1029,7 @@ namespace dkxce
         public string MSIDESC;
         public string MSIHTTP;
         public bool MSIVIS;
+        public bool WITTS;
         public List<string> FILES = new List<string>();
         public List<string> PfxList = new List<string>();
         public List<string> ThumbList = new List<string>();

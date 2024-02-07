@@ -134,7 +134,7 @@ namespace dkxce
             /* HEADER */
             Console.WriteLine("***************************************************************");
             Console.WriteLine("********            dkxce PE Significator           ***********");
-            Console.WriteLine("********             v 2024-02-06 ST TSA            ***********");
+            Console.WriteLine("********             v 2024-02-07 ST TSA            ***********");
             Console.WriteLine("********    http://github.com/dkxce/SignificatePE   ***********");
             Console.WriteLine("***************************************************************");
             Console.WriteLine("*****                                                     *****");
@@ -191,6 +191,7 @@ namespace dkxce
                         Verify(fi.FullName);
                         Console.WriteLine($" }} ");
                         result++;
+                        System.Threading.Thread.Sleep(wait);
                     };
                 }
                 else if (remove)
@@ -209,6 +210,7 @@ namespace dkxce
                         Verify(fi.FullName);
                         Console.WriteLine($" }} ");
                         result++;
+                        System.Threading.Thread.Sleep(wait);
                     };
                 }
                 else
@@ -258,6 +260,7 @@ namespace dkxce
                                     break;
                                 };
                                 result++;
+                                System.Threading.Thread.Sleep(wait);
                             };
                             Verify(fi.FullName);
                             Console.WriteLine($" }} ");
@@ -289,12 +292,12 @@ namespace dkxce
                                 if (ex == null) ex = new System.ComponentModel.Win32Exception(0);
                                 Console.WriteLine($"     Info: {ex.Message}");
                                 result++;
+                                System.Threading.Thread.Sleep(wait);
                             };
                             Verify(fi.FullName);
                             Console.WriteLine($" }} ");
                         };
                     };
-
                 };
 
             }
