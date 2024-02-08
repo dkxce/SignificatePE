@@ -93,6 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="InputBox.cs" />
+    <Compile Include="MruList.cs" />
     <Compile Include="PassCrypt.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

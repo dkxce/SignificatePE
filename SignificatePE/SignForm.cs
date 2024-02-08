@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
@@ -39,6 +40,7 @@ namespace dkxce
         AutoCompleteStringCollection pfxCache = new AutoCompleteStringCollection();
         Task TSATask = null;
         object tsaServer = null;
+        MruList mrul = null;
 
         public List<string> TimeServers = new List<string>() { 
             "NO_TIMESTAMP",
@@ -76,7 +78,8 @@ namespace dkxce
             IntPtr hSysMenu = GetSystemMenu(this.Handle, false);
             AppendMenu(hSysMenu, 0x800, 0x00, string.Empty);
             AppendMenu(hSysMenu, 0x000, 0x01, "Author: dkxce");
-            AppendMenu(hSysMenu, 0x000, 0x02, "Open Windows CertMgr... ");
+            AppendMenu(hSysMenu, 0x000, 0x02, "Check Last Release ...");
+            AppendMenu(hSysMenu, 0x000, 0x03, "Open Windows CertMgr... ");
         }
 
         protected override void WndProc(ref Message m)
@@ -85,8 +88,12 @@ namespace dkxce
             if ((m.Msg == 0x112) && ((int)m.WParam == 0x01)) // Author
             {
                 OpenAbout();                
-            };            
-            if ((m.Msg == 0x112) && ((int)m.WParam == 0x02))
+            };
+            if ((m.Msg == 0x112) && ((int)m.WParam == 0x02)) // Version
+            {
+                ChekLastRelease();
+            };
+            if ((m.Msg == 0x112) && ((int)m.WParam == 0x03))
             {
                 try { Process.Start("certmgr.msc"); } catch { };
             };            
@@ -536,6 +543,8 @@ namespace dkxce
                         if (File.Exists(f))
                             pfxCache.Add(f);
                 };
+                if (mrul != null && !string.IsNullOrEmpty(fileName))
+                    mrul.AddFile(fileName);
             }
             catch { };
         }
@@ -578,6 +587,8 @@ namespace dkxce
             foreach (FileItem fi in fList.Items)
                 cfg.FILES.Add(fi.FileName);
             try { if (string.IsNullOrEmpty(fileName)) SignConfig.SaveHere("SignificatePE.ini", cfg); else SignConfig.Save(fileName, cfg); } catch { };
+            if (mrul != null && !string.IsNullOrEmpty(fileName))
+                mrul.AddFile(fileName);
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -666,17 +677,29 @@ namespace dkxce
         private void contextMenuStrip2_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
             configsItem.DropDownItems.Clear();
+            System.Drawing.Image icon = this.Icon.ToBitmap();
             string path = Path.GetDirectoryName(Environment.GetCommandLineArgs()[0]);
             string[] files = Directory.GetFiles(path, "*.ini", SearchOption.AllDirectories);
-            configsItem.Enabled = files.Length > 0;
+            // configsItem.Enabled = files.Length > 0;
             foreach (string f in files)
             {
                 string nm = f.Substring(path.Length).Trim('\\');
                 if (nm == "SignificatePE.ini") nm += " (Last Launched)";
-                ToolStripMenuItem mi = new ToolStripMenuItem(nm,this.Icon.ToBitmap());
+                ToolStripMenuItem mi = new ToolStripMenuItem(nm, icon);
                 mi.Click += (object s, EventArgs a) => LoadCfg(false, f);
                 configsItem.DropDownItems.Add(mi);
             };
+            if (files.Length > 0) configsItem.DropDownItems.Add(new ToolStripSeparator());
+            try { eToolStripMenuItem.Visible = File.Exists(@"C:\Program Files\xca\xca.exe"); } catch { };
+            PrepareMRU(icon);            
+        }
+
+        private void PrepareMRU(Image icon = null)
+        {            
+            string appPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SignificatePE");
+            try { Directory.CreateDirectory(appPath); } catch { };
+            mrul = new MruList(Path.Combine(appPath, "SignificatePE.mru"), configsItem, 9, icon);
+            mrul.FileSelected += (fn) => LoadCfg(false, fn);
         }
 
         private void ovMode_SelectedIndexChanged(object sender, EventArgs e)
@@ -999,6 +1022,72 @@ namespace dkxce
         private void tsYes_CheckedChanged(object sender, EventArgs e) => UpdateWITTS();
 
         private void tsNo_CheckedChanged(object sender, EventArgs e) => UpdateWITTS();
+
+        private void checkLastReleaseToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ChekLastRelease();
+        }
+
+        private void ChekLastRelease()
+        {
+            HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create("https://api.github.com/repos/dkxce/SignificatePE/releases/latest");
+            request.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0";
+            request.Referer = "https://github.com/dkxce/SignificatePE";
+            request.Method = "GET";
+            string res = null;
+            try
+            {
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    Stream dataStream = response.GetResponseStream();
+                    StreamReader reader = new StreamReader(dataStream);
+                    res = reader.ReadToEnd();
+                    reader.Close();
+                    dataStream.Close();
+                    Regex rx_tag = new Regex(@"""tag_name""[^""]+""([^""]+)""", RegexOptions.IgnoreCase);
+                    Regex rx_pbl = new Regex(@"""published_at""[^""]+""([^""]+)""", RegexOptions.IgnoreCase);
+                    Regex rx_bdy = new Regex(@"""body""[^""]+""([^""]+)""", RegexOptions.IgnoreCase);
+                    Regex rx_url = new Regex(@"""html_url""[^""]+""([^""]+)""", RegexOptions.IgnoreCase);
+                    Match mx_tag = rx_tag.Match(res);
+                    Match mx_pbl = rx_pbl.Match(res);
+                    Match mx_bdy = rx_bdy.Match(res);
+                    Match mx_url = rx_url.Match(res);
+                    string body = "";
+                    if(mx_bdy.Success)
+                    {
+                        body = mx_bdy.Groups[1].Value.Replace("\\r", "\r").Replace("\\n","\n");
+                        body = $"{body}\r\n\r\n";
+                    };
+                    string url = mx_url.Success ? mx_url.Groups[1].Value : "https://github.com/dkxce/SignificatePE/releases/latest/";
+                    if (mx_tag.Success && mx_pbl.Success)
+                    {
+                        string dt = mx_pbl.Groups[1].Value.Replace("T", " ").Replace("Z", " UTC");
+                        DialogResult dr = MessageBox.Show(
+                            $"Last version Inforation from github:\r\n\r\n  Release: {mx_tag.Groups[1].Value}\r\n  Date: {dt}\r\n\r\n" +
+                            body + 
+                            $"Do you want to open web page for get full info?",
+                            this.Text,
+                            MessageBoxButtons.YesNo,
+                            MessageBoxIcon.Information);
+                        if (dr == DialogResult.Yes)
+                            try { Process.Start(url); } catch { };
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Couldn't get Last version Inforation from github.", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    };
+                };
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, this.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            };
+        }
+
+        private void eToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try { Process.Start(@"C:\Program Files\xca\xca.exe"); } catch { };
+        }
     }
 
     public class FileItem

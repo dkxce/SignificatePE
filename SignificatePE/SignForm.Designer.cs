@@ -44,8 +44,8 @@
             this.contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.newConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.configsItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
             this.retroactively = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripSeparator();
@@ -55,8 +55,10 @@
             this.makecerFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem7 = new System.Windows.Forms.ToolStripSeparator();
             this.editConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.eToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openWindowsCertMgrToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
+            this.checkLastReleaseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clsBtn = new System.Windows.Forms.Button();
             this.runBtn = new System.Windows.Forms.Button();
@@ -94,7 +96,6 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
             this.lPanel.SuspendLayout();
             this.gFiles.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
@@ -223,27 +224,28 @@
             this.contextMenuStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.newConfigurationToolStripMenuItem,
             this.openConfigurationToolStripMenuItem,
-            this.saveConfigurationToolStripMenuItem,
-            this.toolStripMenuItem5,
             this.configsItem,
+            this.saveConfigurationToolStripMenuItem,
             this.toolStripMenuItem4,
             this.retroactively,
             this.toolStripMenuItem6,
             this.mSISetingsToolStripMenuItem,
             this.toolStripMenuItem2,
             this.createCertificateToolStripMenuItem,
+            this.eToolStripMenuItem,
             this.openWindowsCertMgrToolStripMenuItem,
             this.toolStripMenuItem3,
+            this.checkLastReleaseToolStripMenuItem,
             this.aboutToolStripMenuItem});
             this.contextMenuStrip2.Name = "contextMenuStrip2";
-            this.contextMenuStrip2.Size = new System.Drawing.Size(215, 254);
+            this.contextMenuStrip2.Size = new System.Drawing.Size(215, 292);
             this.contextMenuStrip2.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip2_Opening);
             // 
             // newConfigurationToolStripMenuItem
             // 
             this.newConfigurationToolStripMenuItem.Name = "newConfigurationToolStripMenuItem";
             this.newConfigurationToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
-            this.newConfigurationToolStripMenuItem.Text = "New configuration";
+            this.newConfigurationToolStripMenuItem.Text = "New Configuration";
             this.newConfigurationToolStripMenuItem.Click += new System.EventHandler(this.newConfigurationToolStripMenuItem_Click);
             // 
             // openConfigurationToolStripMenuItem
@@ -253,18 +255,18 @@
             this.openConfigurationToolStripMenuItem.Text = "Open Configuration ...";
             this.openConfigurationToolStripMenuItem.Click += new System.EventHandler(this.openConfigurationToolStripMenuItem_Click);
             // 
+            // configsItem
+            // 
+            this.configsItem.Name = "configsItem";
+            this.configsItem.Size = new System.Drawing.Size(214, 22);
+            this.configsItem.Text = "Load Configuration ...";
+            // 
             // saveConfigurationToolStripMenuItem
             // 
             this.saveConfigurationToolStripMenuItem.Name = "saveConfigurationToolStripMenuItem";
             this.saveConfigurationToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
             this.saveConfigurationToolStripMenuItem.Text = "Save Configuration ...";
             this.saveConfigurationToolStripMenuItem.Click += new System.EventHandler(this.saveConfigurationToolStripMenuItem_Click);
-            // 
-            // configsItem
-            // 
-            this.configsItem.Name = "configsItem";
-            this.configsItem.Size = new System.Drawing.Size(214, 22);
-            this.configsItem.Text = "Configs:";
             // 
             // toolStripMenuItem4
             // 
@@ -287,7 +289,7 @@
             // 
             this.mSISetingsToolStripMenuItem.Name = "mSISetingsToolStripMenuItem";
             this.mSISetingsToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
-            this.mSISetingsToolStripMenuItem.Text = "MSI Settings ...";
+            this.mSISetingsToolStripMenuItem.Text = "MSI File Settings (.msi) ...";
             this.mSISetingsToolStripMenuItem.Click += new System.EventHandler(this.mSISetingsToolStripMenuItem_Click);
             // 
             // toolStripMenuItem2
@@ -325,6 +327,14 @@
             this.editConfigurationToolStripMenuItem.Text = "Edit configuration ...";
             this.editConfigurationToolStripMenuItem.Click += new System.EventHandler(this.editConfigurationToolStripMenuItem_Click);
             // 
+            // eToolStripMenuItem
+            // 
+            this.eToolStripMenuItem.Name = "eToolStripMenuItem";
+            this.eToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
+            this.eToolStripMenuItem.Text = "Open XCA ...";
+            this.eToolStripMenuItem.Visible = false;
+            this.eToolStripMenuItem.Click += new System.EventHandler(this.eToolStripMenuItem_Click);
+            // 
             // openWindowsCertMgrToolStripMenuItem
             // 
             this.openWindowsCertMgrToolStripMenuItem.Name = "openWindowsCertMgrToolStripMenuItem";
@@ -336,6 +346,13 @@
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
             this.toolStripMenuItem3.Size = new System.Drawing.Size(211, 6);
+            // 
+            // checkLastReleaseToolStripMenuItem
+            // 
+            this.checkLastReleaseToolStripMenuItem.Name = "checkLastReleaseToolStripMenuItem";
+            this.checkLastReleaseToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
+            this.checkLastReleaseToolStripMenuItem.Text = "Check Last Release ...";
+            this.checkLastReleaseToolStripMenuItem.Click += new System.EventHandler(this.checkLastReleaseToolStripMenuItem_Click);
             // 
             // aboutToolStripMenuItem
             // 
@@ -596,7 +613,7 @@
             this.log.Name = "log";
             this.log.ReadOnly = true;
             this.log.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.log.Size = new System.Drawing.Size(238, 490);
+            this.log.Size = new System.Drawing.Size(338, 490);
             this.log.TabIndex = 1;
             // 
             // msiPanel
@@ -605,7 +622,7 @@
             this.msiPanel.Controls.Add(this.groupBox2);
             this.msiPanel.Controls.Add(this.groupBox1);
             this.msiPanel.Dock = System.Windows.Forms.DockStyle.Right;
-            this.msiPanel.Location = new System.Drawing.Point(558, 0);
+            this.msiPanel.Location = new System.Drawing.Point(658, 0);
             this.msiPanel.Name = "msiPanel";
             this.msiPanel.Size = new System.Drawing.Size(304, 490);
             this.msiPanel.TabIndex = 9;
@@ -699,7 +716,7 @@
             this.toolStripStatusLabel2});
             this.statusStrip1.Location = new System.Drawing.Point(0, 490);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(862, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(962, 22);
             this.statusStrip1.TabIndex = 10;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -717,16 +734,11 @@
             this.toolStripStatusLabel2.Text = "Stopped";
             this.toolStripStatusLabel2.Click += new System.EventHandler(this.toolStripStatusLabel2_Click);
             // 
-            // toolStripMenuItem5
-            // 
-            this.toolStripMenuItem5.Name = "toolStripMenuItem5";
-            this.toolStripMenuItem5.Size = new System.Drawing.Size(211, 6);
-            // 
             // SignForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(862, 512);
+            this.ClientSize = new System.Drawing.Size(962, 512);
             this.Controls.Add(this.log);
             this.Controls.Add(this.msiPanel);
             this.Controls.Add(this.lPanel);
@@ -830,6 +842,7 @@
         private System.Windows.Forms.RadioButton tsNo;
         private System.Windows.Forms.RadioButton tsYes;
         private System.Windows.Forms.Label tsHelp;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem5;
+        private System.Windows.Forms.ToolStripMenuItem checkLastReleaseToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem eToolStripMenuItem;
     }
 }
