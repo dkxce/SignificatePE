@@ -12,7 +12,7 @@ namespace dkxce
 
         private string MRUListSavedFileName;
         private int MRUFilesCount;
-        public List<FileInfo> MRUFilesInfos;
+        private List<FileInfo> MRUFilesInfos;
         private ToolStripMenuItem MyMenu;
 
         private bool UseSeparator = false;
@@ -28,7 +28,7 @@ namespace dkxce
         // Constructor.
         public MruList(string MRUFileName, ToolStripMenuItem menu, int num_files, System.Drawing.Image icon = null)
         {
-            if(menuRenderer == null) ToolStripManager.Renderer = menuRenderer = new MruItemRenderer(menu, this, true);
+            if(menuRenderer == null) ToolStripManager.Renderer = menuRenderer = new MruItemRenderer(menu);
 
             this.MRUListSavedFileName = MRUFileName;
             MyMenu = menu;
@@ -169,24 +169,17 @@ namespace dkxce
         }        
     }
 
+    /// <remarks>
+    ///     ToolStripMenuItem.Tag must be FileInfo
+    /// </remarks>
     public class MruItemRenderer : ToolStripProfessionalRenderer
     {
         private const int MaxPathLength = 40;
-        private const int ItemOffset = 34;
-        private string CD = null;
-       
+        private const int ItemOffset = 34;        
 
         public ToolStripMenuItem menu { set; get; } = null;
-        public MruList mru { set; get; } = null;
-        public bool renderCurrentDirectory { get; set; } = false;
-
-        public MruItemRenderer(ToolStripMenuItem menu = null, MruList mru = null, bool renderCurrentDirectory = false)
-        {
-            CD = TrimPathLength(Path.GetDirectoryName(Environment.GetCommandLineArgs()[0]));
-            this.menu = menu;
-            this.mru = mru;
-            this.renderCurrentDirectory = renderCurrentDirectory;
-        }
+        
+        public MruItemRenderer(ToolStripMenuItem menu = null) { this.menu = menu; }
 
         public static string TrimPathLength(string path, int maxL = MaxPathLength)
         {
@@ -214,51 +207,53 @@ namespace dkxce
         {
             ToolStripMenuItem mItem = e.Item as ToolStripMenuItem;
             
-            if (mItem == null || this.mru == null || this.menu == null) { base.OnRenderItemText(e); return; };
+            if (mItem == null || this.menu == null) { base.OnRenderItemText(e); return; };
             if (mItem.OwnerItem != this.menu) { base.OnRenderItemText(e); return; };
-            
-            // MRU
-            if (mItem.Text.StartsWith("&") && mItem.Text.Contains(" `") && int.TryParse(mItem.Text.Substring(1).Split(' ')[0], out int id))
+
+            try
             {
-                try
+                FileInfo fi = mItem.Tag as FileInfo;
+                if (fi != null)
                 {
-                    FileInfo fi = this.mru.MRUFilesInfos[id - 1];
                     string path = TrimPathLength(fi.FullName.Remove(fi.FullName.Length - fi.Name.Length));
-                    int wi = ItemOffset;
-                    {
-                        // Num
-                        e.Graphics.DrawString($"[{id}] ", e.TextFont, new SolidBrush(Color.Maroon), new Point(wi, 2));
-                        wi += (int)e.Graphics.MeasureString($"[{id}] ", e.TextFont).Width;
+                    // MRU
+                    if (mItem.Text.StartsWith("&") && mItem.Text.Contains(" `") && int.TryParse(mItem.Text.Substring(1).Split(' ')[0], out int id))
+                    {                        
+                        int wi = ItemOffset;
+                        {
+                            // Num
+                            e.Graphics.DrawString($"[{id}] ", e.TextFont, new SolidBrush(Color.Maroon), new Point(wi, 2));
+                            wi += (int)e.Graphics.MeasureString($"[{id}] ", e.TextFont).Width;
+                        };
+                        {
+                            // Name
+                            Font f = new Font(e.TextFont, FontStyle.Bold);
+                            e.Graphics.DrawString($"{fi.Name}", f, new SolidBrush(Color.Black), new Point(wi, 2));
+                            wi += (int)e.Graphics.MeasureString($"{fi.Name}", f).Width;
+                        };
+                        {
+                            // Dir
+                            e.Graphics.DrawString($"{path}", e.TextFont, new SolidBrush(Color.Teal), new Point(wi, 2));
+                        };
+                        return;
                     };
+                    // Not MRU
                     {
-                        // Name
-                        Font f = new Font(e.TextFont, FontStyle.Bold);
-                        e.Graphics.DrawString($"{fi.Name}", f, new SolidBrush(Color.Black), new Point(wi, 2));
-                        wi += (int)e.Graphics.MeasureString($"{fi.Name}", f).Width;
-                    };
-                    {
-                        // Dir
-                        e.Graphics.DrawString($"{path}", e.TextFont, new SolidBrush(Color.Teal), new Point(wi, 2));
+                        int wi = ItemOffset;                        
+                        {
+                            // Name
+                            e.Graphics.DrawString($"{mItem.Text}", e.TextFont, new SolidBrush(Color.Black), new Point(wi, 2));
+                            wi += (int)e.Graphics.MeasureString($"{mItem.Text}", e.TextFont).Width;
+                        };
+                        {
+                            // Dir
+                            e.Graphics.DrawString($"{path}", e.TextFont, new SolidBrush(Color.Teal), new Point(wi, 2));
+                        };
                     };
                     return;
-                }
-                catch { };
-            };
-            
-            if(this.renderCurrentDirectory)
-            {
-                int wi = ItemOffset;
-                {
-                    // Name
-                    e.Graphics.DrawString($"{mItem.Text}", e.TextFont, new SolidBrush(Color.Black), new Point(wi, 2));
-                    wi += (int)e.Graphics.MeasureString($"{mItem.Text}", e.TextFont).Width;
                 };
-                {
-                    // Dir
-                    e.Graphics.DrawString($"{CD}", e.TextFont, new SolidBrush(Color.Teal), new Point(wi, 2));
-                };
-                return;
-            };
+            }
+            catch { };            
 
             // default draw
             base.OnRenderItemText(e);

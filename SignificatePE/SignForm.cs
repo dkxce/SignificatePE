@@ -683,9 +683,12 @@ namespace dkxce
             // configsItem.Enabled = files.Length > 0;
             foreach (string f in files)
             {
+                if (!SignConfig.IsValidConfigFile(f)) continue;
+
                 string nm = f.Substring(path.Length).Trim('\\');
                 if (nm == "SignificatePE.ini") nm += " (Last Launched)";
                 ToolStripMenuItem mi = new ToolStripMenuItem(nm, icon);
+                mi.Tag = new FileInfo(f);
                 mi.Click += (object s, EventArgs a) => LoadCfg(false, f);
                 configsItem.DropDownItems.Add(mi);
             };
@@ -1125,5 +1128,27 @@ namespace dkxce
         public List<string> FILES = new List<string>();
         public List<string> PfxList = new List<string>();
         public List<string> ThumbList = new List<string>();
+
+        public static bool IsValidConfigFile(string fileName)
+        {
+            FileStream fs = null;
+            try
+            {
+                if (File.Exists(fileName))
+                {
+                    fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+                    if (fs.Length > 20)
+                    {
+                        byte[] buff = new byte[20];
+                        fs.Read(buff, 0, buff.Length);
+                        if (System.Text.Encoding.ASCII.GetString(buff).Contains("IniSaved File"))
+                            return true;
+                    }
+                    fs.Close();
+                };
+            }
+            catch { } finally { if (fs != null) fs.Close(); };
+            return false;
+        }
     }
 }

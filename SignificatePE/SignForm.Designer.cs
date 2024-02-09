@@ -238,64 +238,64 @@
             this.checkLastReleaseToolStripMenuItem,
             this.aboutToolStripMenuItem});
             this.contextMenuStrip2.Name = "contextMenuStrip2";
-            this.contextMenuStrip2.Size = new System.Drawing.Size(215, 292);
+            this.contextMenuStrip2.Size = new System.Drawing.Size(240, 292);
             this.contextMenuStrip2.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip2_Opening);
             // 
             // newConfigurationToolStripMenuItem
             // 
             this.newConfigurationToolStripMenuItem.Name = "newConfigurationToolStripMenuItem";
-            this.newConfigurationToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
+            this.newConfigurationToolStripMenuItem.Size = new System.Drawing.Size(239, 22);
             this.newConfigurationToolStripMenuItem.Text = "New Configuration";
             this.newConfigurationToolStripMenuItem.Click += new System.EventHandler(this.newConfigurationToolStripMenuItem_Click);
             // 
             // openConfigurationToolStripMenuItem
             // 
             this.openConfigurationToolStripMenuItem.Name = "openConfigurationToolStripMenuItem";
-            this.openConfigurationToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
+            this.openConfigurationToolStripMenuItem.Size = new System.Drawing.Size(239, 22);
             this.openConfigurationToolStripMenuItem.Text = "Open Configuration ...";
             this.openConfigurationToolStripMenuItem.Click += new System.EventHandler(this.openConfigurationToolStripMenuItem_Click);
             // 
             // configsItem
             // 
             this.configsItem.Name = "configsItem";
-            this.configsItem.Size = new System.Drawing.Size(214, 22);
+            this.configsItem.Size = new System.Drawing.Size(239, 22);
             this.configsItem.Text = "Load Configuration ...";
             // 
             // saveConfigurationToolStripMenuItem
             // 
             this.saveConfigurationToolStripMenuItem.Name = "saveConfigurationToolStripMenuItem";
-            this.saveConfigurationToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
+            this.saveConfigurationToolStripMenuItem.Size = new System.Drawing.Size(239, 22);
             this.saveConfigurationToolStripMenuItem.Text = "Save Configuration ...";
             this.saveConfigurationToolStripMenuItem.Click += new System.EventHandler(this.saveConfigurationToolStripMenuItem_Click);
             // 
             // toolStripMenuItem4
             // 
             this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(211, 6);
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(236, 6);
             // 
             // retroactively
             // 
             this.retroactively.Name = "retroactively";
-            this.retroactively.Size = new System.Drawing.Size(214, 22);
-            this.retroactively.Text = "Sign Retroactively ...";
+            this.retroactively.Size = new System.Drawing.Size(239, 22);
+            this.retroactively.Text = "Sign Retroactively (Backdate) ...";
             this.retroactively.Click += new System.EventHandler(this.retroactively_Click);
             // 
             // toolStripMenuItem6
             // 
             this.toolStripMenuItem6.Name = "toolStripMenuItem6";
-            this.toolStripMenuItem6.Size = new System.Drawing.Size(211, 6);
+            this.toolStripMenuItem6.Size = new System.Drawing.Size(236, 6);
             // 
             // mSISetingsToolStripMenuItem
             // 
             this.mSISetingsToolStripMenuItem.Name = "mSISetingsToolStripMenuItem";
-            this.mSISetingsToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
+            this.mSISetingsToolStripMenuItem.Size = new System.Drawing.Size(239, 22);
             this.mSISetingsToolStripMenuItem.Text = "MSI File Settings (.msi) ...";
             this.mSISetingsToolStripMenuItem.Click += new System.EventHandler(this.mSISetingsToolStripMenuItem_Click);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(211, 6);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(236, 6);
             // 
             // createCertificateToolStripMenuItem
             // 
@@ -304,7 +304,7 @@
             this.toolStripMenuItem7,
             this.editConfigurationToolStripMenuItem});
             this.createCertificateToolStripMenuItem.Name = "createCertificateToolStripMenuItem";
-            this.createCertificateToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
+            this.createCertificateToolStripMenuItem.Size = new System.Drawing.Size(239, 22);
             this.createCertificateToolStripMenuItem.Text = "Create Certificate";
             this.createCertificateToolStripMenuItem.Click += new System.EventHandler(this.createCertificateToolStripMenuItem_Click);
             // 
@@ -330,7 +330,7 @@
             // eToolStripMenuItem
             // 
             this.eToolStripMenuItem.Name = "eToolStripMenuItem";
-            this.eToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
+            this.eToolStripMenuItem.Size = new System.Drawing.Size(239, 22);
             this.eToolStripMenuItem.Text = "Open XCA ...";
             this.eToolStripMenuItem.Visible = false;
             this.eToolStripMenuItem.Click += new System.EventHandler(this.eToolStripMenuItem_Click);
@@ -338,26 +338,26 @@
             // openWindowsCertMgrToolStripMenuItem
             // 
             this.openWindowsCertMgrToolStripMenuItem.Name = "openWindowsCertMgrToolStripMenuItem";
-            this.openWindowsCertMgrToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
+            this.openWindowsCertMgrToolStripMenuItem.Size = new System.Drawing.Size(239, 22);
             this.openWindowsCertMgrToolStripMenuItem.Text = "Open Windows CertMgr ...";
             this.openWindowsCertMgrToolStripMenuItem.Click += new System.EventHandler(this.openWindowsCertMgrToolStripMenuItem_Click);
             // 
             // toolStripMenuItem3
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(211, 6);
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(236, 6);
             // 
             // checkLastReleaseToolStripMenuItem
             // 
             this.checkLastReleaseToolStripMenuItem.Name = "checkLastReleaseToolStripMenuItem";
-            this.checkLastReleaseToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
+            this.checkLastReleaseToolStripMenuItem.Size = new System.Drawing.Size(239, 22);
             this.checkLastReleaseToolStripMenuItem.Text = "Check Last Release ...";
             this.checkLastReleaseToolStripMenuItem.Click += new System.EventHandler(this.checkLastReleaseToolStripMenuItem_Click);
             // 
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(239, 22);
             this.aboutToolStripMenuItem.Text = "About ...";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 

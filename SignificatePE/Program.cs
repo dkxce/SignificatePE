@@ -134,7 +134,7 @@ namespace dkxce
             /* HEADER */
             Console.WriteLine("***************************************************************");
             Console.WriteLine("********            dkxce PE Significator           ***********");
-            Console.WriteLine("********             v 2024-02-08 ST TSA            ***********");
+            Console.WriteLine("********             v 2024-02-09 ST TSA            ***********");
             Console.WriteLine("********    http://github.com/dkxce/SignificatePE   ***********");
             Console.WriteLine("***************************************************************");
             Console.WriteLine("*****                                                     *****");
